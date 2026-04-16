@@ -1,16 +1,51 @@
 {
   "name": "trenchkit",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "directories": {
-    "doc": "docs"
+  "version": "0.1.0",
+  "description": "Real-time crypto intelligence pipeline built on GMGN OpenAPI",
+  "type": "module",
+  "bin": {
+    "trenchkit": "./dist/index.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "typecheck": "tsc --noEmit"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs"
+  "keywords": [
+    "gmgn",
+    "solana",
+    "crypto",
+    "intelligence",
+    "cli"
+  ],
+  "author": "@LWARTSS",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "dependencies": {
+    "@noble/ed25519": "^3.1.0",
+    "bottleneck": "^2.19.5",
+    "chalk": "^5.6.2",
+    "cli-table3": "^0.6.5",
+    "commander": "^14.0.3",
+    "cosmiconfig": "^9.0.1",
+    "dotenv": "^17.4.2",
+    "ink": "^7.0.0",
+    "p-retry": "^8.0.0",
+    "react": "^19.2.5"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.12",
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "ink-testing-library": "^4.0.0",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.4"
+  }
 }

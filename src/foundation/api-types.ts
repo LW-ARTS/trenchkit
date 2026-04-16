@@ -222,6 +222,8 @@ export interface GmgnSmartMoneyTrade {
   timestamp: number;
   tx_hash?: string;
   wallet_tags?: string[];
+  // 0 = position opened/added, 1 = position closed/reduced (for kol/smartmoney endpoints)
+  is_open_or_close?: number;
 }
 
 // Swap/quote response

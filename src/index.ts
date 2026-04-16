@@ -1,5 +1,6 @@
 import { Command } from 'commander'
 import { registerInitCommand } from './commands/init.js'
+import { registerConfigCommand } from './commands/config.js'
 import { registerScanCommand } from './commands/scan.js'
 import { registerWalletCommand } from './commands/wallet.js'
 import { registerSmartmoneyCommand } from './commands/smartmoney.js'
@@ -15,6 +16,7 @@ program
   .option('-c, --chain <chain>', 'blockchain network (sol, bsc, base)', 'sol')
 
 registerInitCommand(program)
+registerConfigCommand(program)
 registerScanCommand(program)
 registerWalletCommand(program)
 registerSmartmoneyCommand(program)

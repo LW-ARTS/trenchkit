@@ -244,3 +244,45 @@ export interface GmgnQuoteResponse {
   route?: string[];
   expires_at?: number;
 }
+
+// Trade condition orders (server-side TP/SL attached to swap)
+export type GmgnConditionOrderType =
+  | 'profit_stop'        // fixed take-profit: price_scale = gain %
+  | 'loss_stop'          // fixed stop-loss:   price_scale = drop %
+  | 'profit_stop_trace'  // trailing TP: price_scale = activation %, drawdown_rate = callback %
+  | 'loss_stop_trace';   // trailing SL: price_scale = activation %, drawdown_rate = callback %
+
+export type GmgnConditionOrderMode = 'hold_amount';
+
+export interface GmgnConditionOrder {
+  type: GmgnConditionOrderType;
+  mode: GmgnConditionOrderMode;
+  price_scale: number;
+  drawdown_rate?: number;
+}
+
+// Swap request body (POST /v1/trade/:chain/swap)
+export interface GmgnSwapRequest {
+  from: string;
+  input_token: string;
+  output_token: string;
+  amount: string;
+  slippage: number;
+  condition_orders?: GmgnConditionOrder[];
+  // SOL-only fees, required when condition_orders present on Solana
+  priority_fee?: number;
+  tip_fee?: number;
+}
+
+// Strategy order row (GET /v1/trade/:chain/strategy_orders)
+export interface GmgnStrategyOrder {
+  order_id: string;
+  token_address: string;
+  type: GmgnConditionOrderType;
+  mode: GmgnConditionOrderMode;
+  price_scale: number;
+  drawdown_rate?: number;
+  status: string;
+  created_at: number;
+  triggered_at?: number;
+}

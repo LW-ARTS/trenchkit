@@ -12,6 +12,7 @@ export type TrenchkitConfig = {
   maxTradeAmount: number
   defaultPriorityFee: number
   defaultTipFee: number
+  walletAddress?: string
 }
 
 const DEFAULT_CONFIG: TrenchkitConfig = {

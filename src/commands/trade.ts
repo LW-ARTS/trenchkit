@@ -34,8 +34,7 @@ function requireTradeMode(): string | null {
 
 function resolveWallet(flag: string | undefined): string | null {
   if (flag) return flag
-  const cfg = loadConfig() as { walletAddress?: string }
-  return cfg.walletAddress ?? null
+  return loadConfig().walletAddress ?? null
 }
 
 function parseTpSl(opts: {

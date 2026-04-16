@@ -4,6 +4,7 @@ import { registerScanCommand } from './commands/scan.js'
 import { registerWalletCommand } from './commands/wallet.js'
 import { registerSmartmoneyCommand } from './commands/smartmoney.js'
 import { registerResearchCommand } from './commands/research.js'
+import { registerTradeCommand } from './commands/trade.js'
 
 const program = new Command()
 
@@ -18,5 +19,6 @@ registerScanCommand(program)
 registerWalletCommand(program)
 registerSmartmoneyCommand(program)
 registerResearchCommand(program)
+registerTradeCommand(program)
 
 program.parse()

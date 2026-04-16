@@ -11,6 +11,7 @@
     "outDir": "dist",
     "rootDir": "src",
     "declaration": true,
+    "types": ["node"],
     "skipLibCheck": true,
     "incremental": true,
     "tsBuildInfoFile": ".tsbuildinfo",

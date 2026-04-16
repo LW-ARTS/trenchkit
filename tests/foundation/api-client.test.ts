@@ -41,12 +41,6 @@ describe('createGmgnClient', () => {
     expect(typeof client.trade.getQuote).toBe('function');
     expect(typeof client.trade.submitSwap).toBe('function');
     expect(typeof client.trade.getOrderStatus).toBe('function');
-  });
-
-  it('trade.submitSwap throws not yet implemented', () => {
-    const client = createGmgnClient('test-api-key');
-    expect(() =>
-      client.trade.submitSwap('sol', 'wallet', 'tokenIn', 'tokenOut', '1000', 0.5)
-    ).toThrow('not yet implemented');
+    expect(typeof client.trade.getStrategyOrders).toBe('function');
   });
 });

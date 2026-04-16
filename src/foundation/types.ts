@@ -1,5 +1,5 @@
 // Chain identifiers
-export type Chain = 'sol' | 'bsc' | 'base';
+export type Chain = "sol" | "bsc" | "base";
 
 // Security fields applicable per chain
 export interface ApplicableSecurityFields {
@@ -22,13 +22,13 @@ export interface ChainConfig {
 }
 
 // Lifecycle stages
-export type LifecycleStage = 'EARLY' | 'BREAKOUT' | 'DISTRIBUTION' | 'DECLINE';
+export type LifecycleStage = "EARLY" | "BREAKOUT" | "DISTRIBUTION" | "DECLINE";
 
 // Conviction labels
-export type ConvictionLabel = 'HIGH' | 'MODERATE' | 'LOW' | 'AVOID';
+export type ConvictionLabel = "HIGH" | "MODERATE" | "LOW" | "AVOID";
 
 // Signal strength
-export type SignalStrength = 'WEAK' | 'MEDIUM' | 'STRONG' | 'VERY_STRONG';
+export type SignalStrength = "WEAK" | "MEDIUM" | "STRONG" | "VERY_STRONG";
 
 // Full token analysis result (~40 nullable fields)
 export interface TokenAnalysis {
@@ -81,67 +81,57 @@ export interface TokenAnalysis {
 // Slice types — focused subsets of TokenAnalysis
 export type SecuritySlice = Pick<
   TokenAnalysis,
-  | 'address'
-  | 'chain'
-  | 'isHoneypot'
-  | 'isRenounced'
-  | 'isFreezeAuthorityRenounced'
-  | 'isMintAuthorityRenounced'
-  | 'buyTax'
-  | 'sellTax'
+  | "address"
+  | "chain"
+  | "isHoneypot"
+  | "isRenounced"
+  | "isFreezeAuthorityRenounced"
+  | "isMintAuthorityRenounced"
+  | "buyTax"
+  | "sellTax"
 >;
 
 export type HolderSlice = Pick<
   TokenAnalysis,
-  | 'address'
-  | 'chain'
-  | 'holderCount'
-  | 'top10HolderRate'
-  | 'holderGrowthRate'
-  | 'freshWalletRate'
-  | 'insiderHoldRate'
-  | 'privateVaultHoldRate'
+  | "address"
+  | "chain"
+  | "holderCount"
+  | "top10HolderRate"
+  | "holderGrowthRate"
+  | "freshWalletRate"
+  | "insiderHoldRate"
+  | "privateVaultHoldRate"
 >;
 
 export type SmartMoneySlice = Pick<
   TokenAnalysis,
-  | 'address'
-  | 'chain'
-  | 'smartMoneyWalletCount'
-  | 'smartMoneyVolumeRatio'
-  | 'bluechipOwnerPercentage'
-  | 'convergenceStrength'
+  | "address"
+  | "chain"
+  | "smartMoneyWalletCount"
+  | "smartMoneyVolumeRatio"
+  | "bluechipOwnerPercentage"
+  | "convergenceStrength"
 >;
 
 export type DevSlice = Pick<
   TokenAnalysis,
-  | 'address'
-  | 'chain'
-  | 'creatorOpenCount'
-  | 'creatorInnerCount'
-  | 'creatorOpenRatio'
-  | 'devAthMc'
+  "address" | "chain" | "creatorOpenCount" | "creatorInnerCount" | "creatorOpenRatio" | "devAthMc"
 >;
 
 export type LiquiditySlice = Pick<
   TokenAnalysis,
-  | 'address'
-  | 'chain'
-  | 'liquidity'
-  | 'liquidityStable'
-  | 'burnRatio'
-  | 'rugRatio'
+  "address" | "chain" | "liquidity" | "liquidityStable" | "burnRatio" | "rugRatio"
 >;
 
 export type BotSlice = Pick<
   TokenAnalysis,
-  | 'address'
-  | 'chain'
-  | 'botDegenRate'
-  | 'bundlerRate'
-  | 'ratTraderRate'
-  | 'sniperCount'
-  | 'isWashTrading'
+  | "address"
+  | "chain"
+  | "botDegenRate"
+  | "bundlerRate"
+  | "ratTraderRate"
+  | "sniperCount"
+  | "isWashTrading"
 >;
 
 // Wallet profile

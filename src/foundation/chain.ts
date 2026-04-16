@@ -1,13 +1,13 @@
-import type { Chain, ChainConfig } from './types.js';
+import type { Chain, ChainConfig } from "./types.js";
 
 export const CHAINS: Record<Chain, ChainConfig> = {
   sol: {
-    id: 'sol',
-    nativeCurrency: 'SOL',
-    nativeAddress: 'So11111111111111111111111111111111111111112',
+    id: "sol",
+    nativeCurrency: "SOL",
+    nativeAddress: "So11111111111111111111111111111111111111112",
     nativeDecimals: 9,
     defaultFilters: {},
-    explorerUrl: 'https://solscan.io',
+    explorerUrl: "https://solscan.io",
     applicableSecurityFields: {
       freezeAuthority: true,
       mintAuthority: true,
@@ -17,12 +17,12 @@ export const CHAINS: Record<Chain, ChainConfig> = {
     },
   },
   bsc: {
-    id: 'bsc',
-    nativeCurrency: 'BNB',
-    nativeAddress: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+    id: "bsc",
+    nativeCurrency: "BNB",
+    nativeAddress: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
     nativeDecimals: 18,
     defaultFilters: {},
-    explorerUrl: 'https://bscscan.com',
+    explorerUrl: "https://bscscan.com",
     applicableSecurityFields: {
       freezeAuthority: false,
       mintAuthority: false,
@@ -32,12 +32,12 @@ export const CHAINS: Record<Chain, ChainConfig> = {
     },
   },
   base: {
-    id: 'base',
-    nativeCurrency: 'ETH',
-    nativeAddress: '0x4200000000000000000000000000000000000006',
+    id: "base",
+    nativeCurrency: "ETH",
+    nativeAddress: "0x4200000000000000000000000000000000000006",
     nativeDecimals: 18,
     defaultFilters: {},
-    explorerUrl: 'https://basescan.org',
+    explorerUrl: "https://basescan.org",
     applicableSecurityFields: {
       freezeAuthority: false,
       mintAuthority: false,

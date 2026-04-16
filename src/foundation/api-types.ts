@@ -215,7 +215,7 @@ export interface GmgnSmartMoneyTrade {
   wallet_address: string;
   token_address: string;
   symbol: string;
-  side: 'buy' | 'sell';
+  side: "buy" | "sell";
   amount: number;
   value_usd: number;
   price: number;
@@ -247,12 +247,12 @@ export interface GmgnQuoteResponse {
 
 // Trade condition orders (server-side TP/SL attached to swap)
 export type GmgnConditionOrderType =
-  | 'profit_stop'        // fixed take-profit: price_scale = gain %
-  | 'loss_stop'          // fixed stop-loss:   price_scale = drop %
-  | 'profit_stop_trace'  // trailing TP: price_scale = activation %, drawdown_rate = callback %
-  | 'loss_stop_trace';   // trailing SL: price_scale = activation %, drawdown_rate = callback %
+  | "profit_stop" // fixed take-profit: price_scale = gain %
+  | "loss_stop" // fixed stop-loss:   price_scale = drop %
+  | "profit_stop_trace" // trailing TP: price_scale = activation %, drawdown_rate = callback %
+  | "loss_stop_trace"; // trailing SL: price_scale = activation %, drawdown_rate = callback %
 
-export type GmgnConditionOrderMode = 'hold_amount';
+export type GmgnConditionOrderMode = "hold_amount";
 
 export interface GmgnConditionOrder {
   type: GmgnConditionOrderType;

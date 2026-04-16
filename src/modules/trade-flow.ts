@@ -1,20 +1,20 @@
-import { createInterface } from 'node:readline/promises';
-import { stdin as input, stdout as output } from 'node:process';
-import type { Chain } from '../foundation/types.js';
-import type { GmgnClient } from '../foundation/api/client.js';
-import { AuthTimestampExpiredError } from '../foundation/api/client.js';
+import { stdin as input, stdout as output } from "node:process";
+import { createInterface } from "node:readline/promises";
+import type { GmgnClient } from "../foundation/api/client.js";
+import { AuthTimestampExpiredError } from "../foundation/api/client.js";
 import type {
   GmgnConditionOrder,
   GmgnQuoteResponse,
   GmgnSwapRequest,
   GmgnSwapResponse,
-} from '../foundation/api-types.js';
-import { getChainConfig } from '../foundation/chain.js';
-import type { TrenchkitConfig } from '../foundation/config.js';
+} from "../foundation/api-types.js";
+import { getChainConfig } from "../foundation/chain.js";
+import type { TrenchkitConfig } from "../foundation/config.js";
+import type { Chain } from "../foundation/types.js";
 
 export interface TpSlOptions {
-  tpPct?: number;   // fixed take-profit, gain %
-  slPct?: number;   // fixed stop-loss, drop %
+  tpPct?: number; // fixed take-profit, gain %
+  slPct?: number; // fixed stop-loss, drop %
   trailTp?: { activationPct: number; callbackPct: number };
   trailSl?: { activationPct: number; callbackPct: number };
 }
@@ -25,14 +25,14 @@ export interface TradeIntent {
   inputToken: string;
   outputToken: string;
   amount: string;
-  slippage: number;       // e.g. 0.02 for 2%
+  slippage: number; // e.g. 0.02 for 2%
   tpSl?: TpSlOptions;
-  priorityFee?: number;   // overrides config default
-  tipFee?: number;        // overrides config default
+  priorityFee?: number; // overrides config default
+  tipFee?: number; // overrides config default
 }
 
 export interface ExecuteOptions {
-  yes?: boolean;          // skip confirmation
+  yes?: boolean; // skip confirmation
   pollIntervalMs?: number;
   pollMaxMs?: number;
 }
@@ -40,23 +40,23 @@ export interface ExecuteOptions {
 export function buildConditionOrders(opts: TpSlOptions): GmgnConditionOrder[] {
   const orders: GmgnConditionOrder[] = [];
   if (opts.tpPct !== undefined) {
-    orders.push({ type: 'profit_stop', mode: 'hold_amount', price_scale: opts.tpPct });
+    orders.push({ type: "profit_stop", mode: "hold_amount", price_scale: opts.tpPct });
   }
   if (opts.slPct !== undefined) {
-    orders.push({ type: 'loss_stop', mode: 'hold_amount', price_scale: opts.slPct });
+    orders.push({ type: "loss_stop", mode: "hold_amount", price_scale: opts.slPct });
   }
   if (opts.trailTp) {
     orders.push({
-      type: 'profit_stop_trace',
-      mode: 'hold_amount',
+      type: "profit_stop_trace",
+      mode: "hold_amount",
       price_scale: opts.trailTp.activationPct,
       drawdown_rate: opts.trailTp.callbackPct,
     });
   }
   if (opts.trailSl) {
     orders.push({
-      type: 'loss_stop_trace',
-      mode: 'hold_amount',
+      type: "loss_stop_trace",
+      mode: "hold_amount",
       price_scale: opts.trailSl.activationPct,
       drawdown_rate: opts.trailSl.callbackPct,
     });
@@ -79,7 +79,7 @@ export function buildSwapRequest(intent: TradeIntent, config: TrenchkitConfig): 
 
     // SOL requires priority_fee + tip_fee when condition_orders attached,
     // otherwise swap succeeds but strategy creation silently fails.
-    if (intent.chain === 'sol') {
+    if (intent.chain === "sol") {
       request.priority_fee = intent.priorityFee ?? config.defaultPriorityFee;
       request.tip_fee = intent.tipFee ?? config.defaultTipFee;
     }
@@ -91,10 +91,10 @@ export function buildSwapRequest(intent: TradeIntent, config: TrenchkitConfig): 
 export function formatQuotePreview(
   intent: TradeIntent,
   quote: GmgnQuoteResponse,
-  tokenSymbol?: string
+  tokenSymbol?: string,
 ): string {
   const native = getChainConfig(intent.chain).nativeCurrency;
-  const symbol = tokenSymbol ?? 'token';
+  const symbol = tokenSymbol ?? "token";
   const slippagePct = (intent.slippage * 100).toFixed(1);
   const isBuy = intent.inputToken === getChainConfig(intent.chain).nativeAddress;
 
@@ -118,9 +118,9 @@ export class MaxTradeAmountExceeded extends Error {
   constructor(requested: number, cap: number) {
     super(
       `Amount ${requested} exceeds configured maxTradeAmount ${cap}. ` +
-        `Edit ~/.config/trenchkit/config.json to change the cap.`
+        `Edit ~/.config/trenchkit/config.json to change the cap.`,
     );
-    this.name = 'MaxTradeAmountExceeded';
+    this.name = "MaxTradeAmountExceeded";
   }
 }
 
@@ -137,7 +137,7 @@ export async function pollOrder(
   client: GmgnClient,
   chain: Chain,
   orderId: string,
-  opts: { intervalMs?: number; maxMs?: number } = {}
+  opts: { intervalMs?: number; maxMs?: number } = {},
 ): Promise<GmgnSwapResponse> {
   const intervalMs = opts.intervalMs ?? 2000;
   const maxMs = opts.maxMs ?? 60_000;
@@ -145,7 +145,7 @@ export async function pollOrder(
 
   while (Date.now() - start < maxMs) {
     const status = await client.trade.getOrderStatus(chain, orderId);
-    if (status.status === 'confirmed' || status.status === 'failed') {
+    if (status.status === "confirmed" || status.status === "failed") {
       return status;
     }
     await new Promise((r) => setTimeout(r, intervalMs));
@@ -158,7 +158,7 @@ export async function executeTrade(
   client: GmgnClient,
   intent: TradeIntent,
   config: TrenchkitConfig,
-  options: ExecuteOptions = {}
+  options: ExecuteOptions = {},
 ): Promise<GmgnSwapResponse> {
   // 1. Enforce cap (even when --yes bypasses confirmation).
   enforceMaxAmount(intent, config.maxTradeAmount);
@@ -170,7 +170,7 @@ export async function executeTrade(
     intent.inputToken,
     intent.outputToken,
     intent.amount,
-    intent.slippage
+    intent.slippage,
   );
 
   // 3. Confirmation (unless --yes).
@@ -178,7 +178,7 @@ export async function executeTrade(
     const preview = formatQuotePreview(intent, quote);
     const ok = await confirmPrompt(preview);
     if (!ok) {
-      throw new Error('Trade cancelled by user.');
+      throw new Error("Trade cancelled by user.");
     }
   }
 
@@ -193,7 +193,7 @@ export async function executeTrade(
       // Direct user to query_order before any retry to avoid double-spend.
       throw new Error(
         `Trade POST timed out on auth. DO NOT retry. Run 'trenchkit trade orders' ` +
-          `to check if the swap executed before resubmitting.`
+          `to check if the swap executed before resubmitting.`,
       );
     }
     throw err;

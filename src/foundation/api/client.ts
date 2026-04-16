@@ -1,18 +1,18 @@
-import type { RateLimiter } from '../rate-limiter.js';
-import { createRateLimiter, Priority } from '../rate-limiter.js';
-import type { GmgnApiResponse } from '../api-types.js';
-import { signRequest } from '../auth.js';
-import { createTokenApi, type TokenApi } from './token.js';
-import { createMarketApi, type MarketApi } from './market.js';
-import { createUserApi, type UserApi } from './user.js';
-import { createTradeApi, type TradeApi } from './trade.js';
+import type { GmgnApiResponse } from "../api-types.js";
+import { signRequest } from "../auth.js";
+import type { RateLimiter } from "../rate-limiter.js";
+import { createRateLimiter, Priority } from "../rate-limiter.js";
+import { createMarketApi, type MarketApi } from "./market.js";
+import { createTokenApi, type TokenApi } from "./token.js";
+import { createTradeApi, type TradeApi } from "./trade.js";
+import { createUserApi, type UserApi } from "./user.js";
 
-const BASE_URL = 'https://openapi.gmgn.ai';
+const BASE_URL = "https://openapi.gmgn.ai";
 
 export class AuthTimestampExpiredError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'AuthTimestampExpiredError';
+    this.name = "AuthTimestampExpiredError";
   }
 }
 
@@ -29,7 +29,7 @@ export interface RequestOptions {
 
 export interface ApiContext {
   rateLimiter: RateLimiter;
-  request: <T>(method: 'GET' | 'POST', path: string, options?: RequestOptions) => Promise<T>;
+  request: <T>(method: "GET" | "POST", path: string, options?: RequestOptions) => Promise<T>;
 }
 
 export interface GmgnClient {
@@ -41,25 +41,25 @@ export interface GmgnClient {
 
 function sanitizeApiKey(message: string, apiKey: string): string {
   if (!apiKey) return message;
-  return message.split(apiKey).join('[REDACTED]');
+  return message.split(apiKey).join("[REDACTED]");
 }
 
 function createApiContext(apiKey: string): ApiContext {
   const rateLimiter = createRateLimiter();
 
   const executeOnce = async <T>(
-    method: 'GET' | 'POST',
+    method: "GET" | "POST",
     path: string,
     params: Record<string, string> | undefined,
     body: unknown,
-    sign: boolean
+    sign: boolean,
   ): Promise<T> => {
     const url = new URL(`${BASE_URL}${path}`);
     const timestamp = Math.floor(Date.now() / 1000).toString();
     const clientId = crypto.randomUUID();
 
-    url.searchParams.set('timestamp', timestamp);
-    url.searchParams.set('client_id', clientId);
+    url.searchParams.set("timestamp", timestamp);
+    url.searchParams.set("client_id", clientId);
 
     if (params) {
       for (const [key, value] of Object.entries(params)) {
@@ -67,20 +67,20 @@ function createApiContext(apiKey: string): ApiContext {
       }
     }
 
-    const bodyString = body !== undefined ? JSON.stringify(body) : '';
+    const bodyString = body !== undefined ? JSON.stringify(body) : "";
 
     const headers: Record<string, string> = {
-      'X-APIKEY': apiKey,
-      'Content-Type': 'application/json',
+      "X-APIKEY": apiKey,
+      "Content-Type": "application/json",
     };
 
     if (sign) {
       const sortedQs = [...url.searchParams.entries()]
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([k, v]) => `${k}=${v}`)
-        .join('&');
+        .join("&");
       const signature = await signRequest(path, sortedQs, bodyString, parseInt(timestamp, 10));
-      headers['X-Signature'] = signature;
+      headers["X-Signature"] = signature;
     }
 
     let response: Response;
@@ -96,18 +96,18 @@ function createApiContext(apiKey: string): ApiContext {
     }
 
     if (response.status === 429) {
-      const resetHeader = response.headers.get('X-RateLimit-Reset');
+      const resetHeader = response.headers.get("X-RateLimit-Reset");
       if (resetHeader) {
         const resetTimestamp = parseInt(resetHeader, 10);
         const now = Math.floor(Date.now() / 1000);
         const penaltyMs = Math.max(0, (resetTimestamp - now) * 1000);
         rateLimiter.applyPenalty(penaltyMs);
       }
-      throw new Error('Rate limit exceeded (429)');
+      throw new Error("Rate limit exceeded (429)");
     }
 
     if (!response.ok) {
-      let errBodyText = '';
+      let errBodyText = "";
       try {
         errBodyText = await response.text();
       } catch {
@@ -115,7 +115,7 @@ function createApiContext(apiKey: string): ApiContext {
       }
       if (response.status === 401 && isTimestampExpired(errBodyText)) {
         throw new AuthTimestampExpiredError(
-          sanitizeApiKey(`HTTP 401 AUTH_TIMESTAMP_EXPIRED: ${errBodyText}`, apiKey)
+          sanitizeApiKey(`HTTP 401 AUTH_TIMESTAMP_EXPIRED: ${errBodyText}`, apiKey),
         );
       }
       const errMsg = errBodyText
@@ -144,9 +144,9 @@ function createApiContext(apiKey: string): ApiContext {
   };
 
   const request = async <T>(
-    method: 'GET' | 'POST',
+    method: "GET" | "POST",
     path: string,
-    options: RequestOptions = {}
+    options: RequestOptions = {},
   ): Promise<T> => {
     const { params, body, weight = 1, sign = false } = options;
 
@@ -156,7 +156,7 @@ function createApiContext(apiKey: string): ApiContext {
       } catch (err) {
         // GET retry-once on AUTH_TIMESTAMP_EXPIRED (fresh timestamp).
         // POST never retried — caller routes to query_order to avoid double-spend.
-        if (err instanceof AuthTimestampExpiredError && method === 'GET') {
+        if (err instanceof AuthTimestampExpiredError && method === "GET") {
           return executeOnce<T>(method, path, params, body, sign);
         }
         throw err;

@@ -1,1 +1,22 @@
-console.log('trenchkit v0.1.0')
+import { Command } from 'commander'
+import { registerInitCommand } from './commands/init.js'
+import { registerScanCommand } from './commands/scan.js'
+import { registerWalletCommand } from './commands/wallet.js'
+import { registerSmartmoneyCommand } from './commands/smartmoney.js'
+import { registerResearchCommand } from './commands/research.js'
+
+const program = new Command()
+
+program
+  .name('trenchkit')
+  .description('Real-time crypto intelligence pipeline built on GMGN OpenAPI')
+  .version('0.1.0')
+  .option('-c, --chain <chain>', 'blockchain network (sol, bsc, base)', 'sol')
+
+registerInitCommand(program)
+registerScanCommand(program)
+registerWalletCommand(program)
+registerSmartmoneyCommand(program)
+registerResearchCommand(program)
+
+program.parse()

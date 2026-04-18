@@ -2,9 +2,12 @@ import type React from "react";
 import { createContext, useEffect, useMemo, useRef, useState } from "react";
 import { Pipeline } from "../../engine/pipeline.js";
 import type { GmgnClient } from "../../foundation/api/client.js";
+import type { GmgnSwapResponse } from "../../foundation/api-types.js";
+import type { TrenchkitConfig } from "../../foundation/config.js";
 import { pipelineEvents } from "../../foundation/events.js";
 import type { Chain, TokenAnalysis } from "../../foundation/types.js";
 import type { ConvergenceAlert, NormalizedTrade } from "../../modules/smart-money.js";
+import { executeTrade, type TradeIntent } from "../../modules/trade-flow.js";
 import { pushConvergence } from "../util/convergence-buffer.js";
 
 /**
@@ -22,6 +25,7 @@ export type PipelineContextValue = {
   actions: {
     triggerScan: () => Promise<void>;
     requestResearch: (address: string) => Promise<void>;
+    submitTrade: (intent: TradeIntent) => Promise<GmgnSwapResponse>;
   };
   rateLimitStatus: "ok" | "rate-limited";
   pipelineRef: React.MutableRefObject<Pipeline | null>;
@@ -30,6 +34,7 @@ export type PipelineContextValue = {
 export type PipelineProviderProps = {
   chain: Chain;
   client: GmgnClient;
+  config?: TrenchkitConfig;
   children: React.ReactNode;
 };
 
@@ -61,6 +66,7 @@ const CLOCK_INTERVAL_MS = 1_000;
 export function PipelineProvider({
   chain,
   client,
+  config,
   children,
 }: PipelineProviderProps): React.ReactElement {
   const [scanner, setScanner] = useState<TokenAnalysis[] | null>(null);
@@ -157,6 +163,13 @@ export function PipelineProvider({
     };
   }, [client, chain]);
 
+  // Config + client held in refs so the `actions` memo can stay dependency-free
+  // and remain referentially stable across re-renders (D-03).
+  const configRef = useRef<TrenchkitConfig | undefined>(config);
+  configRef.current = config;
+  const clientRef = useRef<GmgnClient>(client);
+  clientRef.current = client;
+
   // Stable action dispatchers — referentially stable across re-renders so that
   // `useActions()` consumers never re-render on slice changes (D-03).
   const actions = useMemo<Actions>(
@@ -172,6 +185,18 @@ export function PipelineProvider({
         if (!p) return;
         const analysis = await p.researchToken(address);
         setResearch(analysis);
+      },
+      submitTrade: async (intent: TradeIntent) => {
+        const cfg = configRef.current;
+        if (!cfg) {
+          throw new Error(
+            "Trade disabled: no TrenchkitConfig available. Pass `config` to PipelineProvider.",
+          );
+        }
+        // Modal pre-confirms in its 3-stage flow, so resolve prompt=true.
+        return executeTrade(clientRef.current, intent, cfg, {
+          prompt: () => Promise.resolve(true),
+        });
       },
     }),
     [],

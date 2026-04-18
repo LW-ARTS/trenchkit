@@ -1,6 +1,7 @@
 import { Box } from "ink";
 import type React from "react";
 import type { GmgnClient } from "../../foundation/api/client.js";
+import type { TrenchkitConfig } from "../../foundation/config.js";
 import type { Chain } from "../../foundation/types.js";
 import { useKeybinds } from "../hooks/useKeybinds.js";
 import { useTerminalSize } from "../hooks/useTerminalSize.js";
@@ -18,6 +19,13 @@ import { MIN_TERMINAL_COLS, MIN_TERMINAL_ROWS, TooSmallFallback } from "./TooSma
 export type AppProps = {
   chain: Chain;
   client: GmgnClient;
+  /**
+   * TrenchkitConfig — threaded down to PipelineProvider so the `submitTrade`
+   * action has the cap + wallet + fee defaults it needs to build a TradeIntent.
+   * Optional because Phase 2 test harnesses mount <App> without it; trade flow
+   * throws a clear error if missing when the T-key submit tries to fire.
+   */
+  config?: TrenchkitConfig;
   hasPrivateKey: boolean;
 };
 
@@ -37,8 +45,14 @@ export type AppProps = {
  * mount; ModalProvider handles the active overlay ID.
  */
 export function App(props: AppProps): React.ReactElement {
+  // Pass config only when defined — exactOptionalPropertyTypes rejects
+  // `config={undefined}` literals on optional props.
+  const providerProps =
+    props.config !== undefined
+      ? { chain: props.chain, client: props.client, config: props.config }
+      : { chain: props.chain, client: props.client };
   return (
-    <PipelineProvider chain={props.chain} client={props.client}>
+    <PipelineProvider {...providerProps}>
       <FocusProvider>
         <ModalProvider>
           <AppShell hasPrivateKey={props.hasPrivateKey} />

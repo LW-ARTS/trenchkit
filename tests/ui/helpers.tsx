@@ -113,6 +113,9 @@ function MockPipelineProvider(props: MockPipelineProviderProps): React.ReactElem
     () => ({
       triggerScan: async () => {},
       requestResearch: async () => {},
+      submitTrade: async () => {
+        throw new Error("submitTrade not implemented in MockPipelineProvider");
+      },
     }),
     [],
   );

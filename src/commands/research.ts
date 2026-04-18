@@ -4,6 +4,7 @@ import type { Command } from "commander";
 import { calculateConviction } from "../engine/scorers/index.js";
 import { validateAddress } from "../foundation/address.js";
 import { createGmgnClient } from "../foundation/api/client.js";
+import { isValidChain } from "../foundation/chain.js";
 import { loadApiKey, loadConfig } from "../foundation/config.js";
 import { formatPercent, formatUsd, truncateAddress } from "../foundation/format.js";
 import { brand, convictionColor, gradeColor } from "../foundation/logger.js";
@@ -103,7 +104,13 @@ export function registerResearchCommand(program: Command): void {
       }
 
       const config = loadConfig();
-      const chain = (program.opts().chain ?? config.defaultChain) as Chain;
+      const chainRaw: string = program.opts().chain ?? config.defaultChain;
+      if (!isValidChain(chainRaw)) {
+        console.error(brand.error(`Invalid chain "${chainRaw}". Valid options: sol, bsc, base`));
+        process.exitCode = 1;
+        return;
+      }
+      const chain: Chain = chainRaw;
 
       if (!validateAddress(chain, tokenAddress)) {
         console.error(brand.error(`Invalid ${chain} address: ${tokenAddress}`));

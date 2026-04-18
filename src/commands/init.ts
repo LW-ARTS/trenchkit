@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { createInterface } from "node:readline";
 import type { Command } from "commander";
+import { isValidChain } from "../foundation/chain.js";
 import { loadApiKey, loadConfig, saveConfig, saveEnv } from "../foundation/config.js";
 import { brand } from "../foundation/logger.js";
 import type { Chain } from "../foundation/types.js";
@@ -33,9 +34,7 @@ export function registerInitCommand(program: Command): void {
         }
 
         const chainInput = await ask(rl, "Default chain (sol/bsc/base) [sol]: ");
-        const chain: Chain = (
-          ["sol", "bsc", "base"].includes(chainInput) ? chainInput : "sol"
-        ) as Chain;
+        const chain: Chain = isValidChain(chainInput) ? chainInput : "sol";
 
         const pkeyPath = await ask(rl, "Private key PEM path (optional, for trading) [skip]: ");
         let privateKeyPem: string | undefined;

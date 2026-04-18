@@ -1,10 +1,8 @@
 import chalk from "chalk";
 import type { Command } from "commander";
+import { isValidChain } from "../foundation/chain.js";
 import { loadConfig, saveConfig } from "../foundation/config.js";
 import { brand } from "../foundation/logger.js";
-import type { Chain } from "../foundation/types.js";
-
-const CHAINS: Chain[] = ["sol", "bsc", "base"];
 
 export function registerConfigCommand(program: Command): void {
   const config = program.command("config").description("Read or update trenchkit config");
@@ -25,12 +23,12 @@ export function registerConfigCommand(program: Command): void {
       const cfg = loadConfig();
       switch (key) {
         case "chain": {
-          if (!CHAINS.includes(value as Chain)) {
-            console.error(brand.error(`chain must be one of: ${CHAINS.join(", ")}`));
+          if (!isValidChain(value)) {
+            console.error(brand.error(`chain must be one of: sol, bsc, base`));
             process.exitCode = 1;
             return;
           }
-          cfg.defaultChain = value as Chain;
+          cfg.defaultChain = value;
           break;
         }
         case "wallet":

@@ -3,16 +3,11 @@ import Table from "cli-table3";
 import type { Command } from "commander";
 import { Pipeline } from "../engine/pipeline.js";
 import { createGmgnClient } from "../foundation/api/client.js";
+import { isValidChain } from "../foundation/chain.js";
 import { loadApiKey, loadConfig } from "../foundation/config.js";
 import { formatAge, formatScore, formatUsd } from "../foundation/format.js";
 import { brand, scoreColor } from "../foundation/logger.js";
 import type { Chain, TokenAnalysis } from "../foundation/types.js";
-
-const VALID_CHAINS: Chain[] = ["sol", "bsc", "base"];
-
-function isValidChain(value: string): value is Chain {
-  return (VALID_CHAINS as string[]).includes(value);
-}
 
 function printTable(tokens: TokenAnalysis[], chain: Chain): void {
   console.log();

@@ -3,7 +3,7 @@ import Table from "cli-table3";
 import type { Command } from "commander";
 import { validateAddress } from "../foundation/address.js";
 import { createGmgnClient } from "../foundation/api/client.js";
-import { getChainConfig, getExplorerTxUrl } from "../foundation/chain.js";
+import { getChainConfig, getExplorerTxUrl, isValidChain } from "../foundation/chain.js";
 import { hasPrivateKey, loadApiKey, loadConfig } from "../foundation/config.js";
 import { truncateAddress } from "../foundation/format.js";
 import { brand } from "../foundation/logger.js";
@@ -16,7 +16,11 @@ const TRADE_DISABLED_MSG =
 
 function getChain(program: Command): Chain {
   const cfg = loadConfig();
-  return (program.opts().chain ?? cfg.defaultChain) as Chain;
+  const raw: string = program.opts().chain ?? cfg.defaultChain;
+  if (!isValidChain(raw)) {
+    throw new Error(`Invalid chain "${raw}". Valid options: sol, bsc, base`);
+  }
+  return raw;
 }
 
 function requireTradeMode(): string | null {

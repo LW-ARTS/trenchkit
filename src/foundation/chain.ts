@@ -56,3 +56,9 @@ export function getExplorerTxUrl(chain: Chain, hash: string): string {
   const config = CHAINS[chain];
   return `${config.explorerUrl}/tx/${hash}`;
 }
+
+const VALID_CHAINS = ["sol", "bsc", "base"] as const satisfies readonly Chain[];
+
+export function isValidChain(value: string): value is Chain {
+  return (VALID_CHAINS as readonly string[]).includes(value);
+}

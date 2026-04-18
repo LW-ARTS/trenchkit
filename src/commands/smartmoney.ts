@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import type { Command } from "commander";
 import { createGmgnClient } from "../foundation/api/client.js";
+import { isValidChain } from "../foundation/chain.js";
 import { loadApiKey, loadConfig } from "../foundation/config.js";
 import { formatUsd, truncateAddress } from "../foundation/format.js";
 import { brand, signalColor } from "../foundation/logger.js";
@@ -32,7 +33,13 @@ export function registerSmartmoneyCommand(program: Command): void {
       }
 
       const config = loadConfig();
-      const chain = (program.opts().chain ?? config.defaultChain) as Chain;
+      const chainRaw: string = program.opts().chain ?? config.defaultChain;
+      if (!isValidChain(chainRaw)) {
+        console.error(brand.error(`Invalid chain "${chainRaw}". Valid options: sol, bsc, base`));
+        process.exitCode = 1;
+        return;
+      }
+      const chain: Chain = chainRaw;
 
       try {
         const client = createGmgnClient(apiKey);

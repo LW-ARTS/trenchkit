@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { CHAINS, getChainConfig, getExplorerTxUrl } from "../../src/foundation/chain.js";
+import {
+  CHAINS,
+  getChainConfig,
+  getExplorerTxUrl,
+  isValidChain,
+} from "../../src/foundation/chain.js";
+import type { Chain } from "../../src/foundation/types.js";
 
 describe("CHAINS config", () => {
   it("defines all 3 chains", () => {
@@ -75,5 +81,29 @@ describe("getExplorerTxUrl", () => {
   it("builds correct Base explorer URL", () => {
     const url = getExplorerTxUrl("base", "0xcafebabe");
     expect(url).toBe("https://basescan.org/tx/0xcafebabe");
+  });
+});
+
+describe("isValidChain", () => {
+  it.each(["sol", "bsc", "base"])("returns true for declared chain %s", (input) => {
+    expect(isValidChain(input)).toBe(true);
+  });
+
+  it.each(["doge", "ethereum", "", "SOL", " sol"])(
+    "returns false for unknown chain %s",
+    (input) => {
+      expect(isValidChain(input)).toBe(false);
+    },
+  );
+
+  it("narrows string to Chain in a type-guard position", () => {
+    const s: string = "sol";
+    if (isValidChain(s)) {
+      // s is now typed Chain — compile-time lock
+      const c: Chain = s;
+      expect(c).toBe("sol");
+    } else {
+      throw new Error("unreachable");
+    }
   });
 });

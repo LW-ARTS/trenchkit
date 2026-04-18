@@ -28,7 +28,12 @@ export function ScannerPanel(): React.ReactElement {
         paddingX={1}
       >
         <Text bold>SCANNER</Text>
-        <ScannerBody slice={slice} rowCount={rowCount} selectedRow={selectedRow[PANEL_ID]} />
+        <ScannerBody
+          slice={slice}
+          rowCount={rowCount}
+          selectedRow={selectedRow[PANEL_ID]}
+          isFocused={isFocused}
+        />
       </Box>
     </PanelErrorBoundary>
   );
@@ -38,10 +43,12 @@ function ScannerBody({
   slice,
   rowCount,
   selectedRow,
+  isFocused,
 }: {
   slice: TokenAnalysis[] | null;
   rowCount: number;
   selectedRow: number;
+  isFocused: boolean;
 }): React.ReactElement {
   if (slice === null) return <Text color="gray">scanning…</Text>;
   if (slice.length === 0) return <Text color="gray">No qualified tokens yet</Text>;
@@ -51,7 +58,7 @@ function ScannerBody({
     <Box flexDirection="column">
       <Text dimColor>{"Symbol          Score   MC      Liq     Holders"}</Text>
       {visible.map((t, idx) => {
-        const selected = idx === selectedRow;
+        const selected = isFocused && idx === selectedRow;
         const score = t.convictionScore ?? 0;
         const mc = t.marketCap != null ? formatUsd(t.marketCap) : "—";
         const liq = t.liquidity != null ? formatUsd(t.liquidity) : "—";

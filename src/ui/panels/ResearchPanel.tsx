@@ -56,7 +56,12 @@ export function ResearchPanel(): React.ReactElement {
         paddingX={1}
       >
         <Text bold>RESEARCH</Text>
-        <ResearchBody feed={feed} rowCount={rowCount} selectedRow={selectedRow[PANEL_ID]} />
+        <ResearchBody
+          feed={feed}
+          rowCount={rowCount}
+          selectedRow={selectedRow[PANEL_ID]}
+          isFocused={isFocused}
+        />
       </Box>
     </PanelErrorBoundary>
   );
@@ -73,10 +78,12 @@ function ResearchBody({
   feed,
   rowCount,
   selectedRow,
+  isFocused,
 }: {
   feed: FeedEntry[];
   rowCount: number;
   selectedRow: number;
+  isFocused: boolean;
 }): React.ReactElement {
   if (feed.length === 0) return <Text color="gray">No recent research</Text>;
 
@@ -85,7 +92,7 @@ function ResearchBody({
     <Box flexDirection="column">
       <Text dimColor>{"Token         Score   Conviction   Time"}</Text>
       {visible.map(({ analysis, addedAt }, idx) => {
-        const selected = idx === selectedRow;
+        const selected = isFocused && idx === selectedRow;
         const tokenLabel = (analysis.symbol ?? truncateAddress(analysis.address, 4))
           .padEnd(13)
           .slice(0, 13);

@@ -28,7 +28,12 @@ export function SmartMoneyPanel(): React.ReactElement {
         paddingX={1}
       >
         <Text bold>SMART MONEY</Text>
-        <SmartMoneyBody slice={slice} rowCount={rowCount} selectedRow={selectedRow[PANEL_ID]} />
+        <SmartMoneyBody
+          slice={slice}
+          rowCount={rowCount}
+          selectedRow={selectedRow[PANEL_ID]}
+          isFocused={isFocused}
+        />
       </Box>
     </PanelErrorBoundary>
   );
@@ -45,10 +50,12 @@ function SmartMoneyBody({
   slice,
   rowCount,
   selectedRow,
+  isFocused,
 }: {
   slice: NormalizedTrade[] | null;
   rowCount: number;
   selectedRow: number;
+  isFocused: boolean;
 }): React.ReactElement {
   if (slice === null) return <Text color="gray">listening…</Text>;
   if (slice.length === 0) return <Text color="gray">No smart-money activity</Text>;
@@ -58,7 +65,7 @@ function SmartMoneyBody({
     <Box flexDirection="column">
       <Text dimColor>{"Time   Wallet      Source  Side  Size"}</Text>
       {visible.map((t, idx) => {
-        const selected = idx === selectedRow;
+        const selected = isFocused && idx === selectedRow;
         const time = formatHHMM(t.timestamp).padEnd(6);
         const wallet = truncateAddress(t.maker, 4).padEnd(11).slice(0, 11);
         const source = (t.source === "kol" ? "KOL" : "SM").padEnd(6);

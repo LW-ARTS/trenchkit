@@ -54,7 +54,12 @@ export function ConvergencePanel(): React.ReactElement {
         paddingX={1}
       >
         <Text bold>CONVERGENCE</Text>
-        <ConvergenceBody slice={slice} rowCount={rowCount} selectedRow={selectedRow[PANEL_ID]} />
+        <ConvergenceBody
+          slice={slice}
+          rowCount={rowCount}
+          selectedRow={selectedRow[PANEL_ID]}
+          isFocused={isFocused}
+        />
       </Box>
     </PanelErrorBoundary>
   );
@@ -72,10 +77,12 @@ function ConvergenceBody({
   slice,
   rowCount,
   selectedRow,
+  isFocused,
 }: {
   slice: ConvergenceAlert[];
   rowCount: number;
   selectedRow: number;
+  isFocused: boolean;
 }): React.ReactElement {
   if (slice.length === 0) return <Text color="gray">Awaiting convergence</Text>;
 
@@ -84,7 +91,7 @@ function ConvergenceBody({
     <Box flexDirection="column">
       <Text dimColor>{"Strength     Token        Wallets  Time"}</Text>
       {visible.map((alert, idx) => {
-        const selected = idx === selectedRow;
+        const selected = isFocused && idx === selectedRow;
         const level: SignalStrength =
           typeof alert.signalLevel === "string"
             ? alert.signalLevel

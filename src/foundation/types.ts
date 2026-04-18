@@ -19,6 +19,7 @@ export interface ChainConfig {
   defaultFilters: Record<string, unknown>;
   explorerUrl: string;
   applicableSecurityFields: ApplicableSecurityFields;
+  displayLabel: string;
 }
 
 // Lifecycle stages

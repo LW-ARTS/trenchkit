@@ -15,6 +15,7 @@ export const CHAINS: Record<Chain, ChainConfig> = {
       buyTax: false,
       sellTax: false,
     },
+    displayLabel: "◎ SOL",
   },
   bsc: {
     id: "bsc",
@@ -30,6 +31,7 @@ export const CHAINS: Record<Chain, ChainConfig> = {
       buyTax: true,
       sellTax: true,
     },
+    displayLabel: "⬢ BSC",
   },
   base: {
     id: "base",
@@ -45,6 +47,7 @@ export const CHAINS: Record<Chain, ChainConfig> = {
       buyTax: true,
       sellTax: true,
     },
+    displayLabel: "▲ BASE",
   },
 };
 

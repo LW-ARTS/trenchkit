@@ -107,3 +107,21 @@ describe("isValidChain", () => {
     }
   });
 });
+
+describe("displayLabel", () => {
+  it("returns SOL glyph for sol", () => {
+    expect(getChainConfig("sol").displayLabel).toBe("◎ SOL");
+  });
+
+  it("returns non-empty BSC label containing BSC", () => {
+    const label = getChainConfig("bsc").displayLabel;
+    expect(label.length).toBeGreaterThan(0);
+    expect(label).toContain("BSC");
+  });
+
+  it("returns non-empty BASE label containing BASE", () => {
+    const label = getChainConfig("base").displayLabel;
+    expect(label.length).toBeGreaterThan(0);
+    expect(label).toContain("BASE");
+  });
+});

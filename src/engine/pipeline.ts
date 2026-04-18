@@ -4,7 +4,7 @@ import { pipelineEvents } from "../foundation/events.js";
 import type { Chain, TokenAnalysis } from "../foundation/types.js";
 import { ResearchEngine } from "../modules/research.js";
 import { Scanner } from "../modules/scanner.js";
-import type { ConvergenceAlert } from "../modules/smart-money.js";
+import type { ConvergenceAlert, NormalizedTrade } from "../modules/smart-money.js";
 import { SmartMoneyTracker } from "../modules/smart-money.js";
 import { passesHardFilters } from "./filters.js";
 import { calculateConviction } from "./scorers/index.js";
@@ -65,6 +65,10 @@ export class Pipeline {
   // Poll smart money and return convergence alerts
   async pollSmartMoney(): Promise<ConvergenceAlert[]> {
     return this.smartMoney.poll();
+  }
+
+  getRecentSmartMoneyTrades(): NormalizedTrade[] {
+    return this.smartMoney.getRecentTrades();
   }
 
   getScanner(): Scanner {

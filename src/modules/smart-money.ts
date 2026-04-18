@@ -27,6 +27,8 @@ export type ConvergenceAlert = {
 // 15 minute convergence window in seconds
 const CONVERGENCE_WINDOW_SEC = 15 * 60;
 
+const MAX_RECENT_TRADES = 50;
+
 function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
@@ -99,6 +101,7 @@ type TaggedTrade = {
 export class SmartMoneyTracker {
   private client: GmgnClient;
   private chain: Chain;
+  private recentTrades: NormalizedTrade[] = [];
 
   constructor(client: GmgnClient, chain: Chain) {
     this.client = client;
@@ -114,8 +117,24 @@ export class SmartMoneyTracker {
     const now = Math.floor(Date.now() / 1000);
     const windowStart = now - CONVERGENCE_WINDOW_SEC;
 
+    // Buffer normalized trades newest-first, capped at MAX_RECENT_TRADES.
+    // Existing grouping/convergence logic below is unchanged — this is additive.
+    const normalized: NormalizedTrade[] = [
+      ...kolRaw.filter((r) => r.timestamp >= windowStart).map((r) => normalizeTrade(r, "kol")),
+      ...smRaw
+        .filter((r) => r.timestamp >= windowStart)
+        .map((r) => normalizeTrade(r, "smartmoney")),
+    ];
+    normalized.sort((a, b) => b.timestamp - a.timestamp);
+    this.recentTrades = normalized.slice(0, MAX_RECENT_TRADES);
+
     const byToken = this.groupByToken(kolRaw, smRaw, windowStart);
     return this.detectConvergence(byToken, now);
+  }
+
+  // Additive accessor — no contract change to poll().
+  getRecentTrades(): NormalizedTrade[] {
+    return [...this.recentTrades]; // defensive copy
   }
 
   // Exposed for unit testing: groups raw trades by token within the 15min window

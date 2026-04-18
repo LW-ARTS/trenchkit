@@ -351,3 +351,40 @@ describe("SmartMoneyTracker - window filtering", () => {
     expect(alerts).toHaveLength(0);
   });
 });
+
+describe("SmartMoneyTracker.getRecentTrades", () => {
+  it("returns normalized trades after poll, newest first", async () => {
+    const now = Math.floor(Date.now() / 1000);
+    const client = makeClient(
+      [makeSmTrade({ timestamp: now - 60, wallet_address: "kolA" })],
+      [makeSmTrade({ timestamp: now - 30, wallet_address: "smA" })],
+    );
+    const tracker = new SmartMoneyTracker(client, "sol");
+    await tracker.poll();
+    const recent = tracker.getRecentTrades();
+    expect(recent).toHaveLength(2);
+    expect(recent[0]?.timestamp ?? 0).toBeGreaterThan(recent[1]?.timestamp ?? 0);
+    expect(recent.some((t) => t.source === "kol")).toBe(true);
+    expect(recent.some((t) => t.source === "smartmoney")).toBe(true);
+  });
+
+  it("is bounded at 50 entries even after a poll with more trades", async () => {
+    const now = Math.floor(Date.now() / 1000);
+    const manyTrades = Array.from({ length: 60 }, (_, i) =>
+      makeSmTrade({ timestamp: now - i, wallet_address: `w${i}` }),
+    );
+    const client = makeClient([], manyTrades);
+    const tracker = new SmartMoneyTracker(client, "sol");
+    await tracker.poll();
+    expect(tracker.getRecentTrades()).toHaveLength(50);
+  });
+
+  it("returns a defensive copy — mutating the returned array does not affect internal state", async () => {
+    const client = makeClient([], [makeSmTrade()]);
+    const tracker = new SmartMoneyTracker(client, "sol");
+    await tracker.poll();
+    const snapshot = tracker.getRecentTrades();
+    snapshot.length = 0;
+    expect(tracker.getRecentTrades()).toHaveLength(1);
+  });
+});

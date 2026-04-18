@@ -1,4 +1,5 @@
 import type { GmgnClient } from "../foundation/api/client.js";
+import type { PipelineEvents } from "../foundation/events.js";
 import { pipelineEvents } from "../foundation/events.js";
 import type { Chain, TokenAnalysis } from "../foundation/types.js";
 import { ResearchEngine } from "../modules/research.js";
@@ -13,6 +14,8 @@ export class Pipeline {
   private research: ResearchEngine;
   private smartMoney: SmartMoneyTracker;
   private chain: Chain;
+  private convergenceHandler: (payload: PipelineEvents["convergence:detected"]) => void;
+  private disposed = false;
 
   constructor(client: GmgnClient, chain: Chain) {
     this.chain = chain;
@@ -21,7 +24,8 @@ export class Pipeline {
     this.smartMoney = new SmartMoneyTracker(client, chain);
 
     // Auto-trigger research on strong convergence
-    pipelineEvents.on("convergence:detected", async (payload) => {
+    // Stored as a named field so dispose() can off() the same reference.
+    this.convergenceHandler = async (payload) => {
       if (payload.chain === this.chain && payload.strength >= 70) {
         const analysis = await this.research.research(payload.tokenAddress);
         const scored = calculateConviction(analysis);
@@ -30,7 +34,14 @@ export class Pipeline {
           analysis: scored,
         });
       }
-    });
+    };
+    pipelineEvents.on("convergence:detected", this.convergenceHandler);
+  }
+
+  dispose(): void {
+    if (this.disposed) return; // idempotent — safe to call multiple times
+    this.disposed = true;
+    pipelineEvents.off("convergence:detected", this.convergenceHandler);
   }
 
   // One-shot: scan -> filter -> score (for CLI commands)

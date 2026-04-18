@@ -73,33 +73,106 @@ async function runScan(chain: Chain, minScore: number | undefined): Promise<void
   const apiKey = loadApiKey();
   if (!apiKey) {
     console.log(brand.error("No API key found. Run `trenchkit init` to configure."));
-    process.exit(1);
+    process.exitCode = 1;
+    return;
   }
 
   const client = createGmgnClient(apiKey);
   const pipeline = new Pipeline(client, chain);
 
-  let tokens: TokenAnalysis[];
   try {
-    tokens = await pipeline.scan();
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    console.log(brand.error(`API error: ${message}`));
-    process.exit(1);
-  }
+    let tokens: TokenAnalysis[];
+    try {
+      tokens = await pipeline.scan();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.log(brand.error(`API error: ${message}`));
+      process.exitCode = 1;
+      return;
+    }
 
-  if (minScore !== undefined) {
-    tokens = tokens.filter((t) => t.convictionScore != null && t.convictionScore >= minScore);
-  }
+    if (minScore !== undefined) {
+      tokens = tokens.filter((t) => t.convictionScore != null && t.convictionScore >= minScore);
+    }
 
-  if (tokens.length === 0) {
-    console.log();
-    console.log(chalk.dim("  No tokens found matching criteria"));
-    console.log();
+    if (tokens.length === 0) {
+      console.log();
+      console.log(chalk.dim("  No tokens found matching criteria"));
+      console.log();
+      return;
+    }
+
+    printTable(tokens, chain);
+  } finally {
+    pipeline.dispose();
+  }
+}
+
+/**
+ * Watch-mode loop. Owns a single long-lived Pipeline across all ticks so we do
+ * not leak `convergence:detected` listeners on the shared `pipelineEvents`
+ * emitter (each `new Pipeline()` registers one). Disposed on SIGINT.
+ */
+export async function runScanLoop(
+  chain: Chain,
+  minScore: number | undefined,
+  intervalMs = 30_000,
+): Promise<void> {
+  const apiKey = loadApiKey();
+  if (!apiKey) {
+    console.log(brand.error("No API key found. Run `trenchkit init` to configure."));
+    process.exitCode = 1;
     return;
   }
 
-  printTable(tokens, chain);
+  const client = createGmgnClient(apiKey);
+  const pipeline = new Pipeline(client, chain);
+
+  const renderOnce = async (): Promise<void> => {
+    let tokens: TokenAnalysis[];
+    try {
+      tokens = await pipeline.scan();
+    } catch (err) {
+      // Do NOT tear down the loop on a single-tick API error — log and skip.
+      // User can Ctrl-C to stop. This keeps `--watch` resilient across
+      // transient rate-limit / network blips.
+      const message = err instanceof Error ? err.message : String(err);
+      console.log(brand.error(`API error: ${message}`));
+      return;
+    }
+
+    if (minScore !== undefined) {
+      tokens = tokens.filter((t) => t.convictionScore != null && t.convictionScore >= minScore);
+    }
+
+    if (tokens.length === 0) {
+      console.log();
+      console.log(chalk.dim("  No tokens found matching criteria"));
+      console.log();
+      return;
+    }
+
+    printTable(tokens, chain);
+  };
+
+  console.clear();
+  await renderOnce();
+
+  const interval = setInterval(() => {
+    void (async () => {
+      console.clear();
+      await renderOnce();
+    })();
+  }, intervalMs);
+
+  process.once("SIGINT", () => {
+    clearInterval(interval);
+    pipeline.dispose();
+    console.log();
+    console.log(chalk.dim("  Stopped watching."));
+    console.log();
+    process.exitCode = 0;
+  });
 }
 
 export function registerScanCommand(program: Command): void {
@@ -122,29 +195,15 @@ export function registerScanCommand(program: Command): void {
           opts.chain ?? cmd.parent?.opts().chain ?? loadConfig().defaultChain;
         if (!isValidChain(chainRaw)) {
           console.log(brand.error(`Invalid chain "${chainRaw}". Valid options: sol, bsc, base`));
-          process.exit(1);
+          process.exitCode = 1;
+          return;
         }
         const chain: Chain = chainRaw;
         const minScore: number | undefined =
           opts.minScore !== undefined && !Number.isNaN(opts.minScore) ? opts.minScore : undefined;
 
         if (opts.watch) {
-          // Run immediately, then on 30s interval
-          console.clear();
-          await runScan(chain, minScore);
-
-          const interval = setInterval(async () => {
-            console.clear();
-            await runScan(chain, minScore);
-          }, 30_000);
-
-          process.on("SIGINT", () => {
-            clearInterval(interval);
-            console.log();
-            console.log(chalk.dim("  Stopped watching."));
-            console.log();
-            process.exit(0);
-          });
+          await runScanLoop(chain, minScore);
         } else {
           await runScan(chain, minScore);
         }

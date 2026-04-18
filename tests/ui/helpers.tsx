@@ -39,7 +39,13 @@ export async function flushFrame(ticks = 1): Promise<void> {
  * (D-24 locked default: vi.useFakeTimers in hook + provider tests).
  */
 export function setupFakeTimers(): { cleanup: () => void } {
-  vi.useFakeTimers();
+  // IMPORTANT: exclude setImmediate from the fake-timer faking list so
+  // flushFrame() keeps working. Vitest's default fake-timers list includes
+  // setImmediate; faking it causes flushFrame to hang forever waiting on a
+  // microtask that never fires.
+  vi.useFakeTimers({
+    toFake: ["setTimeout", "clearTimeout", "setInterval", "clearInterval", "Date"],
+  });
   return {
     cleanup: () => {
       vi.useRealTimers();

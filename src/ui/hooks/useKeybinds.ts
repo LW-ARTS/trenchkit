@@ -2,6 +2,9 @@ import { useApp, useInput } from "ink";
 import { useFocus } from "../providers/FocusProvider.js";
 import { useModal } from "../providers/ModalProvider.js";
 import { useActions } from "./useActions.js";
+import { useConvergence } from "./useConvergence.js";
+import { useScanner } from "./useScanner.js";
+import { useSmartMoney } from "./useSmartMoney.js";
 
 /**
  * Global keyboard routing for the dashboard (D-05, D-08, T/W/R/S/Q).
@@ -12,14 +15,20 @@ import { useActions } from "./useActions.js";
  * - S → triggerScan, W/R/T → open corresponding modal, Q → useApp().exit().
  * - Tab → cycleFocus, arrows → focus+row-selection (up at row 0 crosses to
  *   the spatial neighbor; otherwise decrements selection within panel).
- * - Enter is reserved for research drill-down (D-08) — wiring deferred to
- *   plan 03-03 where row→address resolution lives with the panel slices.
+ * - Enter triggers research on the focused panel's selected row (D-08).
+ *   Resolution by panel: scanner → scanner[row].address; convergence →
+ *   convergence[row].tokenAddress; smart-money → no-op (NormalizedTrade has
+ *   no tokenAddress field, see deviation in SUMMARY); research → no-op
+ *   (researching the current research result is circular).
  */
 export function useKeybinds(): void {
   const { exit } = useApp();
   const { active, open } = useModal();
   const { cycleFocus, moveFocus, focusedPanel, selectedRow, setSelectedRow } = useFocus();
   const actions = useActions();
+  const scanner = useScanner();
+  const smartMoney = useSmartMoney();
+  const convergence = useConvergence();
 
   useInput((input, key) => {
     // Modal absorbs input — skip global routing.
@@ -77,8 +86,22 @@ export function useKeybinds(): void {
     }
 
     if (key.return) {
-      // Enter: drill into selected row — wired in plan 03-03.
-      // Intentionally empty for this plan (D-08 scope).
+      const row = selectedRow[focusedPanel];
+      let tokenAddress: string | undefined;
+      if (focusedPanel === "scanner" && scanner !== null) {
+        tokenAddress = scanner[row]?.address;
+      } else if (focusedPanel === "convergence") {
+        tokenAddress = convergence[row]?.tokenAddress;
+      }
+      // smart-money: NormalizedTrade has no tokenAddress field — Enter is a
+      // no-op here. research: drilling into the current research result would
+      // be circular — Enter is also a no-op. Keep `smartMoney` referenced so
+      // future refactors (e.g. tagged NormalizedTrade) can wire it without
+      // re-adding a hook subscription.
+      void smartMoney;
+      if (tokenAddress !== undefined) {
+        void actions.requestResearch(tokenAddress);
+      }
     }
   });
 }

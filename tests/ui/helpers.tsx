@@ -5,6 +5,7 @@ import { vi } from "vitest";
 import type { Pipeline } from "../../src/engine/pipeline.js";
 import type { Chain, TokenAnalysis } from "../../src/foundation/types.js";
 import type { ConvergenceAlert, NormalizedTrade } from "../../src/modules/smart-money.js";
+import { FocusProvider } from "../../src/ui/providers/FocusProvider.js";
 import {
   ActionsContext,
   ChainContext,
@@ -71,6 +72,21 @@ export type RenderWithPipelineOptions = {
  */
 export function renderWithPipeline(options: RenderWithPipelineOptions): ReturnType<typeof render> {
   return render(<MockPipelineProvider {...options}>{options.children}</MockPipelineProvider>);
+}
+
+/**
+ * Like `renderWithPipeline` but also wraps in `<FocusProvider>` so panels (and
+ * any consumer using `useFocus()`) resolve without needing the full App shell.
+ *
+ * Phase 3 panels each call `useFocus()` to read focusedPanel + selectedRow —
+ * without this wrapper they would throw "useFocus must be used inside FocusProvider".
+ */
+export function renderWithShell(options: RenderWithPipelineOptions): ReturnType<typeof render> {
+  return render(
+    <MockPipelineProvider {...options}>
+      <FocusProvider>{options.children}</FocusProvider>
+    </MockPipelineProvider>,
+  );
 }
 
 type MockPipelineProviderProps = RenderWithPipelineOptions;

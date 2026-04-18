@@ -37,6 +37,9 @@ export interface GmgnClient {
   market: MarketApi;
   user: UserApi;
   trade: TradeApi;
+  // Read-only access to the underlying rate limiter for status indicators (D-14).
+  // Consumers MUST treat this as read-only — never call applyPenalty() from the UI.
+  rateLimiter: RateLimiter;
 }
 
 function sanitizeApiKey(message: string, apiKey: string): string {
@@ -174,5 +177,6 @@ export function createGmgnClient(apiKey: string): GmgnClient {
     market: createMarketApi(ctx),
     user: createUserApi(ctx),
     trade: createTradeApi(ctx),
+    rateLimiter: ctx.rateLimiter,
   };
 }

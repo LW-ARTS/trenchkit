@@ -1,5 +1,10 @@
 // Providers
 
+// Components
+export type { ErrorBoxProps } from "./components/ErrorBox.js";
+export { ErrorBox } from "./components/ErrorBox.js";
+export type { PanelErrorBoundaryProps } from "./components/PanelErrorBoundary.js";
+export { PanelErrorBoundary } from "./components/PanelErrorBoundary.js";
 export type { Actions } from "./hooks/useActions.js";
 // Hooks (8 per-slice selectors + actions)
 export { useActions } from "./hooks/useActions.js";

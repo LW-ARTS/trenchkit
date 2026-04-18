@@ -193,8 +193,18 @@ export function PipelineProvider({
             "Trade disabled: no TrenchkitConfig available. Pass `config` to PipelineProvider.",
           );
         }
+        // If the caller passed an empty walletAddress sentinel (TradeModal
+        // does this — the modal has no wallet-address input stage), resolve
+        // from config.walletAddress here. Throws a clear message if neither
+        // is set, matching the CLI trade flow's "Missing wallet address" UX.
+        const walletAddress = intent.walletAddress || cfg.walletAddress;
+        if (!walletAddress) {
+          throw new Error(
+            "Missing wallet address. Set walletAddress in ~/.config/trenchkit/config.json.",
+          );
+        }
         // Modal pre-confirms in its 3-stage flow, so resolve prompt=true.
-        return executeTrade(clientRef.current, intent, cfg, {
+        return executeTrade(clientRef.current, { ...intent, walletAddress }, cfg, {
           prompt: () => Promise.resolve(true),
         });
       },

@@ -2,6 +2,7 @@ import dns from "node:dns";
 import { Command } from "commander";
 import { registerConfigCommand } from "./commands/config.js";
 import { registerInitCommand } from "./commands/init.js";
+import { registerLiveCommand } from "./commands/live.js";
 import { registerResearchCommand } from "./commands/research.js";
 import { registerScanCommand } from "./commands/scan.js";
 import { registerSmartmoneyCommand } from "./commands/smartmoney.js";
@@ -29,5 +30,6 @@ registerWalletCommand(program);
 registerSmartmoneyCommand(program);
 registerResearchCommand(program);
 registerTradeCommand(program);
+registerLiveCommand(program);
 
 program.parse();

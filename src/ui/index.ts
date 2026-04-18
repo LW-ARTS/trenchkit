@@ -16,8 +16,18 @@ export { useClock } from "./hooks/useClock.js";
 export { useConvergence } from "./hooks/useConvergence.js";
 export { useRateLimitStatus } from "./hooks/useRateLimitStatus.js";
 export { useResearch } from "./hooks/useResearch.js";
+export { useRowCount } from "./hooks/useRowCount.js";
 export { useScanner } from "./hooks/useScanner.js";
 export { useSmartMoney } from "./hooks/useSmartMoney.js";
+export { useTerminalSize } from "./hooks/useTerminalSize.js";
+// Panels (Phase 3)
+export { ConvergencePanel } from "./panels/ConvergencePanel.js";
+export { ResearchPanel } from "./panels/ResearchPanel.js";
+export { ScannerPanel } from "./panels/ScannerPanel.js";
+export { SmartMoneyPanel } from "./panels/SmartMoneyPanel.js";
+// Focus + terminal hooks (Phase 3)
+export type { FocusContextValue, PanelId } from "./providers/FocusProvider.js";
+export { FocusProvider, useFocus } from "./providers/FocusProvider.js";
 export type {
   PipelineContextValue,
   PipelineProviderProps,
@@ -26,6 +36,5 @@ export {
   PipelineContext,
   PipelineProvider,
 } from "./providers/PipelineProvider.js";
-
 // Phase 1 legacy — keep SmokeApp exported for compat-gate regression
 export { SmokeApp } from "./smoke.js";

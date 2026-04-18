@@ -182,6 +182,29 @@ describe("executeTrade", () => {
     expect(result.status).toBe("confirmed");
     expect(getOrderStatus).toHaveBeenCalledTimes(2);
   });
+
+  it("uses injected prompt override when supplied", async () => {
+    const prompt = vi.fn<(line: string) => Promise<boolean>>().mockResolvedValue(true);
+    const client = makeClient({
+      getQuote: vi.fn().mockResolvedValue({
+        input_token: SOL_NATIVE,
+        output_token: "TOKEN",
+        input_amount: 0.5,
+        output_amount: 142_000,
+        price_impact: 0.01,
+        fee: 0,
+      }),
+      submitSwap: vi.fn().mockResolvedValue({ order_id: "o1", status: "confirmed" }),
+      getOrderStatus: vi.fn().mockResolvedValue({ order_id: "o1", status: "confirmed" }),
+    });
+    await executeTrade(client, buyIntent(), baseConfig, {
+      prompt,
+      pollIntervalMs: 1,
+      pollMaxMs: 1000,
+    });
+    expect(prompt).toHaveBeenCalledTimes(1);
+    expect(prompt).toHaveBeenCalledWith(expect.stringContaining("slippage"));
+  });
 });
 
 describe("pollOrder", () => {

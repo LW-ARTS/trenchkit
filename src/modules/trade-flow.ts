@@ -35,6 +35,8 @@ export interface ExecuteOptions {
   yes?: boolean; // skip confirmation
   pollIntervalMs?: number;
   pollMaxMs?: number;
+  // Injected prompter for confirmation (TUI uses Ink modal; CLI omits, falls back to confirmPrompt).
+  prompt?: (line: string) => Promise<boolean>;
 }
 
 export function buildConditionOrders(opts: TpSlOptions): GmgnConditionOrder[] {
@@ -176,7 +178,8 @@ export async function executeTrade(
   // 3. Confirmation (unless --yes).
   if (!options.yes) {
     const preview = formatQuotePreview(intent, quote);
-    const ok = await confirmPrompt(preview);
+    const prompter = options.prompt ?? confirmPrompt;
+    const ok = await prompter(preview);
     if (!ok) {
       throw new Error("Trade cancelled by user.");
     }

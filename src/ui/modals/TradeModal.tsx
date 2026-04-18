@@ -1,4 +1,4 @@
-import { Text } from "ink";
+import { Text, useInput } from "ink";
 import type React from "react";
 import { useState } from "react";
 import { validateAddress } from "../../foundation/address.js";
@@ -119,10 +119,13 @@ export function TradeModal({ hasPrivateKey }: TradeModalProps): React.ReactEleme
 }
 
 /**
- * Tiny helper that renders nothing but registers a useInput handler so the
- * hasPrivateKey=false branch still honors Escape. TextInput isn't appropriate
- * here (no submit semantics); instead we ride on its cancel-only subset.
+ * Escape-only handler for the hasPrivateKey=false branch: registers a single
+ * useInput that closes on Escape. Renders nothing — no cursor artifact, no
+ * hidden keystroke accumulation like a TextInput would introduce.
  */
-function EscapeDismiss({ onCancel }: { onCancel: () => void }): React.ReactElement {
-  return <TextInput onSubmit={onCancel} onCancel={onCancel} placeholder="" />;
+function EscapeDismiss({ onCancel }: { onCancel: () => void }): null {
+  useInput((_input, key) => {
+    if (key.escape) onCancel();
+  });
+  return null;
 }

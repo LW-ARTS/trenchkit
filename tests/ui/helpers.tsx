@@ -35,6 +35,23 @@ export async function flushFrame(ticks = 1): Promise<void> {
 }
 
 /**
+ * Advance fake timers by `ms` milliseconds AND flush React/Ink frame commits.
+ *
+ * Required for testing intervals + React 19 + Ink 7. `vi.advanceTimersByTime`
+ * (sync variant) does NOT flush microtasks; the async variant does, but Ink's
+ * own setImmediate-based frame commit needs an additional flushFrame() afterward.
+ *
+ * Usage:
+ *   await waitForFrame(30_000);  // advance 30s + flush frame
+ *
+ * D-22 (Phase 2 CONTEXT) extension. TUI-07 (Phase 4) requirement.
+ */
+export async function waitForFrame(ms: number): Promise<void> {
+  await vi.advanceTimersByTimeAsync(ms);
+  await flushFrame();
+}
+
+/**
  * Enable fake timers and return a cleanup fn. Convenient boilerplate for
  * beforeEach / afterEach — use inside tests that drive setInterval cadences
  * (D-24 locked default: vi.useFakeTimers in hook + provider tests).

@@ -37,7 +37,7 @@ export class Scanner {
   }
 
   async pollTrending(): Promise<TokenAnalysis[]> {
-    const items = await this.client.market.getTrending(this.chain, { limit: 50, period: "5m" });
+    const items = await this.client.market.getTrending(this.chain, { limit: 50, interval: "5m" });
     return this.processItems(items);
   }
 

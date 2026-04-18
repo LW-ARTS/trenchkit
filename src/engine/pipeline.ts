@@ -47,7 +47,15 @@ export class Pipeline {
   // One-shot: scan -> filter -> score (for CLI commands)
   async scan(): Promise<TokenAnalysis[]> {
     const candidates = await this.scanner.pollTrending();
-    const trenchCandidates = await this.scanner.pollTrenches();
+    // Trenches endpoint path is not yet migrated to the new /v1/trenches shape
+    // (tracked as Phase 1.1 tech debt). A failure here must not abort the whole
+    // scan — trenches is additive data on top of trending.
+    let trenchCandidates: TokenAnalysis[] = [];
+    try {
+      trenchCandidates = await this.scanner.pollTrenches();
+    } catch {
+      // swallow: trending-only scan is still useful
+    }
     const all = [...candidates, ...trenchCandidates];
 
     return all

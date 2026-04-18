@@ -3,6 +3,9 @@
 // Components
 export type { ErrorBoxProps } from "./components/ErrorBox.js";
 export { ErrorBox } from "./components/ErrorBox.js";
+export { ATTRIBUTION, Footer } from "./components/Footer.js";
+export { Header } from "./components/Header.js";
+export { HeaderClock } from "./components/HeaderClock.js";
 export type { PanelErrorBoundaryProps } from "./components/PanelErrorBoundary.js";
 export { PanelErrorBoundary } from "./components/PanelErrorBoundary.js";
 export type { Actions } from "./hooks/useActions.js";

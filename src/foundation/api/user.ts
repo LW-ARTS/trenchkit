@@ -33,9 +33,9 @@ export interface UserApi {
 export function createUserApi(ctx: ApiContext): UserApi {
   return {
     getWalletStats(chain: Chain, wallet: string, period?: string): Promise<GmgnWalletStats> {
-      const params: Record<string, string> = {};
-      if (period !== undefined) params.period = period;
-      return ctx.request<GmgnWalletStats>("GET", `/api/v1/user/${chain}/wallet/${wallet}/stats`, {
+      // GMGN requires `period` — default to 7d when caller didn't specify.
+      const params: Record<string, string> = { chain, wallet_address: wallet, period: period ?? "7d" };
+      return ctx.request<GmgnWalletStats>("GET", "/v1/user/wallet_stats", {
         params,
         weight: 3,
       });
@@ -46,14 +46,13 @@ export function createUserApi(ctx: ApiContext): UserApi {
       wallet: string,
       options: { limit?: number; cursor?: string } = {},
     ): Promise<GmgnWalletHolding[]> {
-      const params: Record<string, string> = {};
+      const params: Record<string, string> = { chain, wallet_address: wallet };
       if (options.limit !== undefined) params.limit = String(options.limit);
       if (options.cursor !== undefined) params.cursor = options.cursor;
-      return ctx.request<GmgnWalletHolding[]>(
-        "GET",
-        `/api/v1/user/${chain}/wallet/${wallet}/holdings`,
-        { params, weight: 2 },
-      );
+      return ctx.request<GmgnWalletHolding[]>("GET", "/v1/user/wallet_holdings", {
+        params,
+        weight: 2,
+      });
     },
 
     getWalletActivity(
@@ -61,49 +60,52 @@ export function createUserApi(ctx: ApiContext): UserApi {
       wallet: string,
       options: { limit?: number; cursor?: string; type?: string } = {},
     ): Promise<GmgnSmartMoneyTrade[]> {
-      const params: Record<string, string> = {};
+      const params: Record<string, string> = { chain, wallet_address: wallet };
       if (options.limit !== undefined) params.limit = String(options.limit);
       if (options.cursor !== undefined) params.cursor = options.cursor;
       if (options.type !== undefined) params.type = options.type;
-      return ctx.request<GmgnSmartMoneyTrade[]>(
-        "GET",
-        `/api/v1/user/${chain}/wallet/${wallet}/activity`,
-        { params, weight: 3 },
-      );
+      return ctx.request<GmgnSmartMoneyTrade[]>("GET", "/v1/user/wallet_activity", {
+        params,
+        weight: 3,
+      });
     },
 
     getCreatedTokens(chain: Chain, wallet: string): Promise<GmgnCreatedTokens> {
-      return ctx.request<GmgnCreatedTokens>(
+      return ctx.request<GmgnCreatedTokens>("GET", "/v1/user/created_tokens", {
+        params: { chain, wallet_address: wallet },
+        weight: 2,
+      });
+    },
+
+    async getKolTrades(
+      chain: Chain,
+      options: { limit?: number; cursor?: string } = {},
+    ): Promise<GmgnSmartMoneyTrade[]> {
+      const params: Record<string, string> = { chain };
+      if (options.limit !== undefined) params.limit = String(options.limit);
+      if (options.cursor !== undefined) params.cursor = options.cursor;
+      const wrapped = await ctx.request<{ list: GmgnSmartMoneyTrade[] } | GmgnSmartMoneyTrade[]>(
         "GET",
-        `/api/v1/user/${chain}/wallet/${wallet}/created_tokens`,
-        { weight: 2 },
+        "/v1/user/kol",
+        { params, weight: 1 },
       );
+      // GMGN returns { list: [...] } for feed endpoints; tolerate plain array for legacy.
+      return Array.isArray(wrapped) ? wrapped : (wrapped?.list ?? []);
     },
 
-    getKolTrades(
+    async getSmartMoneyTrades(
       chain: Chain,
       options: { limit?: number; cursor?: string } = {},
     ): Promise<GmgnSmartMoneyTrade[]> {
-      const params: Record<string, string> = {};
+      const params: Record<string, string> = { chain };
       if (options.limit !== undefined) params.limit = String(options.limit);
       if (options.cursor !== undefined) params.cursor = options.cursor;
-      return ctx.request<GmgnSmartMoneyTrade[]>("GET", `/api/v1/user/${chain}/kol_trades`, {
-        params,
-        weight: 1,
-      });
-    },
-
-    getSmartMoneyTrades(
-      chain: Chain,
-      options: { limit?: number; cursor?: string } = {},
-    ): Promise<GmgnSmartMoneyTrade[]> {
-      const params: Record<string, string> = {};
-      if (options.limit !== undefined) params.limit = String(options.limit);
-      if (options.cursor !== undefined) params.cursor = options.cursor;
-      return ctx.request<GmgnSmartMoneyTrade[]>("GET", `/api/v1/user/${chain}/smart_money_trades`, {
-        params,
-        weight: 1,
-      });
+      const wrapped = await ctx.request<{ list: GmgnSmartMoneyTrade[] } | GmgnSmartMoneyTrade[]>(
+        "GET",
+        "/v1/user/smartmoney",
+        { params, weight: 1 },
+      );
+      return Array.isArray(wrapped) ? wrapped : (wrapped?.list ?? []);
     },
   };
 }

@@ -1,6 +1,6 @@
 import { Text, useInput } from "ink";
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { validateAddress } from "../../foundation/address.js";
 import type { GmgnWalletStats } from "../../foundation/api-types.js";
 import { formatUsd, truncateAddress } from "../../foundation/format.js";
@@ -20,6 +20,13 @@ export function WalletModal(): React.ReactElement {
   const [error, setError] = useState<string | null>(null);
   const [address, setAddress] = useState<string>("");
   const [stats, setStats] = useState<GmgnWalletStats | null>(null);
+  const mountedRef = useRef<boolean>(true);
+  useEffect(
+    () => () => {
+      mountedRef.current = false;
+    },
+    [],
+  );
 
   // Allow Escape to close modal in any stage except "input" (TextInput already handles Escape).
   useInput(
@@ -38,9 +45,11 @@ export function WalletModal(): React.ReactElement {
     setStage("loading");
     try {
       const result = await actions.lookupWallet(value);
+      if (!mountedRef.current) return;
       setStats(result);
       setStage("result");
     } catch (err) {
+      if (!mountedRef.current) return;
       setError(err instanceof Error ? err.message : String(err));
       setStage("error");
     }

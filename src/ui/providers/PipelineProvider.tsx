@@ -78,6 +78,8 @@ export function PipelineProvider({
   const [clock, setClock] = useState<Date>(() => new Date());
   const [rateLimitStatus, setRateLimitStatus] = useState<"ok" | "rate-limited">("ok");
   const [lastAction, setLastAction] = useState<string | null>(null);
+  const lastActionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mountedRef = useRef<boolean>(true);
 
   const pipelineRef = useRef<Pipeline | null>(null);
   // React 19 strict-mode guard: fresh mount gets a fresh ref; never reset in
@@ -149,6 +151,11 @@ export function PipelineProvider({
     const clockInterval = setInterval(runClock, CLOCK_INTERVAL_MS);
 
     return () => {
+      mountedRef.current = false;
+      if (lastActionTimeoutRef.current) {
+        clearTimeout(lastActionTimeoutRef.current);
+        lastActionTimeoutRef.current = null;
+      }
       clearInterval(scannerInterval);
       clearInterval(smartMoneyInterval);
       clearInterval(clockInterval);
@@ -180,16 +187,24 @@ export function PipelineProvider({
       triggerScan: async () => {
         const p = pipelineRef.current;
         if (!p) return;
+        if (!mountedRef.current) return;
         setLastAction("scanning…");
         try {
           const result = await p.scan();
+          if (!mountedRef.current) return;
           setScanner(result);
           setLastAction(`scan ok (${result.length})`);
         } catch (err) {
+          if (!mountedRef.current) return;
           const msg = err instanceof Error ? err.message : String(err);
           setLastAction(msg.includes("429") ? "rate-limited" : "scan failed");
         }
-        setTimeout(() => setLastAction(null), 2000);
+        // Clear any prior pending timeout so rapid S-presses don't stack timers.
+        if (lastActionTimeoutRef.current) clearTimeout(lastActionTimeoutRef.current);
+        lastActionTimeoutRef.current = setTimeout(() => {
+          if (mountedRef.current) setLastAction(null);
+          lastActionTimeoutRef.current = null;
+        }, 2000);
       },
       requestResearch: async (address: string) => {
         const p = pipelineRef.current;

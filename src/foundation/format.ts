@@ -9,10 +9,13 @@ export function formatUsd(value: number | string): string {
   // coerce at the format boundary so callers don't all have to.
   const n = typeof value === "string" ? Number.parseFloat(value) : value;
   if (!Number.isFinite(n)) return "—";
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}k`;
-  if (n >= 1) return `$${n.toFixed(2)}`;
-  return `$${n.toPrecision(3)}`;
+  const sign = n < 0 ? "-" : "";
+  const abs = Math.abs(n);
+  if (abs >= 1_000_000) return `${sign}$${(abs / 1_000_000).toFixed(1)}M`;
+  if (abs >= 1_000) return `${sign}$${(abs / 1_000).toFixed(1)}k`;
+  if (abs >= 1) return `${sign}$${abs.toFixed(2)}`;
+  if (abs === 0) return "$0.00";
+  return `${sign}$${abs.toPrecision(3)}`;
 }
 
 export function formatPercent(value: number | string): string {

@@ -178,14 +178,25 @@ export function PipelineProvider({
       triggerScan: async () => {
         const p = pipelineRef.current;
         if (!p) return;
-        const result = await p.scan();
-        setScanner(result);
+        try {
+          const result = await p.scan();
+          setScanner(result);
+        } catch {
+          // swallow — user-triggered scan failure (e.g., 429 rate limit) should
+          // not crash the TUI. Rate-limit indicator in Header already surfaces
+          // the condition; next tick will retry.
+        }
       },
       requestResearch: async (address: string) => {
         const p = pipelineRef.current;
         if (!p) return;
-        const analysis = await p.researchToken(address);
-        setResearch(analysis);
+        try {
+          const analysis = await p.researchToken(address);
+          setResearch(analysis);
+        } catch {
+          // swallow — research call may 429 or partial-fail; pipelineEvents
+          // emits research:complete on the successful path anyway.
+        }
       },
       submitTrade: async (intent: TradeIntent) => {
         const cfg = configRef.current;

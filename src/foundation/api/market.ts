@@ -48,10 +48,10 @@ export function createMarketApi(ctx: ApiContext): MarketApi {
       chain: Chain,
       options: { limit?: number; cursor?: string; filters?: Record<string, string> } = {},
     ): Promise<GmgnTrenchesResponse> {
-      const params: Record<string, string> = {};
+      const params: Record<string, string> = { chain };
       if (options.limit !== undefined) params.limit = String(options.limit);
       if (options.cursor !== undefined) params.cursor = options.cursor;
-      const body = { chain, ...(options.filters ?? {}) };
+      const body = options.filters ?? {};
       return ctx.request<GmgnTrenchesResponse>("POST", "/v1/trenches", {
         params,
         body,

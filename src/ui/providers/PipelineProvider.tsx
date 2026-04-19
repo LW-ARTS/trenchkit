@@ -2,7 +2,7 @@ import type React from "react";
 import { createContext, useEffect, useMemo, useRef, useState } from "react";
 import { Pipeline } from "../../engine/pipeline.js";
 import type { GmgnClient } from "../../foundation/api/client.js";
-import type { GmgnSwapResponse } from "../../foundation/api-types.js";
+import type { GmgnSwapResponse, GmgnWalletStats } from "../../foundation/api-types.js";
 import type { TrenchkitConfig } from "../../foundation/config.js";
 import { pipelineEvents } from "../../foundation/events.js";
 import type { Chain, TokenAnalysis } from "../../foundation/types.js";
@@ -26,6 +26,7 @@ export type PipelineContextValue = {
     triggerScan: () => Promise<void>;
     requestResearch: (address: string) => Promise<void>;
     submitTrade: (intent: TradeIntent) => Promise<GmgnSwapResponse>;
+    lookupWallet: (address: string) => Promise<GmgnWalletStats>;
   };
   rateLimitStatus: "ok" | "rate-limited";
   pipelineRef: React.MutableRefObject<Pipeline | null>;
@@ -208,8 +209,11 @@ export function PipelineProvider({
           prompt: () => Promise.resolve(true),
         });
       },
+      lookupWallet: (address: string) => {
+        return clientRef.current.user.getWalletStats(chain, address, "7d");
+      },
     }),
-    [],
+    [chain],
   );
 
   return (

@@ -2,6 +2,7 @@ import type { Command } from "commander";
 import { render } from "ink";
 import { createGmgnClient } from "../foundation/api/client.js";
 import { clearKeyMaterial } from "../foundation/auth.js";
+import { showBootBanner } from "../foundation/boot-banner.js";
 import { isValidChain } from "../foundation/chain.js";
 import { hasPrivateKey, loadApiKey, loadConfig } from "../foundation/config.js";
 import { brand } from "../foundation/logger.js";
@@ -57,6 +58,8 @@ export function registerLiveCommand(program: Command): void {
       const hasKey = hasPrivateKey();
       const client = createGmgnClient(apiKey);
       const config = loadConfig();
+
+      await showBootBanner();
 
       const inkApp = render(
         <App chain={chain} client={client} config={config} hasPrivateKey={hasKey} />,

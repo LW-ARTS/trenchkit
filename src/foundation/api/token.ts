@@ -27,19 +27,22 @@ export interface TokenApi {
 export function createTokenApi(ctx: ApiContext): TokenApi {
   return {
     getInfo(chain: Chain, address: string): Promise<GmgnTokenInfo> {
-      return ctx.request<GmgnTokenInfo>("GET", `/api/v1/token/${chain}/${address}`, {
+      return ctx.request<GmgnTokenInfo>("GET", "/v1/token/info", {
+        params: { chain, address },
         weight: 1,
       });
     },
 
     getSecurity(chain: Chain, address: string): Promise<GmgnTokenSecurity> {
-      return ctx.request<GmgnTokenSecurity>("GET", `/api/v1/token/${chain}/${address}/security`, {
+      return ctx.request<GmgnTokenSecurity>("GET", "/v1/token/security", {
+        params: { chain, address },
         weight: 1,
       });
     },
 
     getPool(chain: Chain, address: string): Promise<GmgnPoolInfo> {
-      return ctx.request<GmgnPoolInfo>("GET", `/api/v1/token/${chain}/${address}/pool`, {
+      return ctx.request<GmgnPoolInfo>("GET", "/v1/token/pool_info", {
+        params: { chain, address },
         weight: 1,
       });
     },
@@ -49,10 +52,10 @@ export function createTokenApi(ctx: ApiContext): TokenApi {
       address: string,
       options: { limit?: number; cursor?: string } = {},
     ): Promise<GmgnHolder[]> {
-      const params: Record<string, string> = {};
+      const params: Record<string, string> = { chain, address };
       if (options.limit !== undefined) params.limit = String(options.limit);
       if (options.cursor !== undefined) params.cursor = options.cursor;
-      return ctx.request<GmgnHolder[]>("GET", `/api/v1/token/${chain}/${address}/top_holders`, {
+      return ctx.request<GmgnHolder[]>("GET", "/v1/market/token_top_holders", {
         params,
         weight: 5,
       });
@@ -63,10 +66,10 @@ export function createTokenApi(ctx: ApiContext): TokenApi {
       address: string,
       options: { limit?: number; cursor?: string } = {},
     ): Promise<GmgnRankItem[]> {
-      const params: Record<string, string> = {};
+      const params: Record<string, string> = { chain, address };
       if (options.limit !== undefined) params.limit = String(options.limit);
       if (options.cursor !== undefined) params.cursor = options.cursor;
-      return ctx.request<GmgnRankItem[]>("GET", `/api/v1/token/${chain}/${address}/top_traders`, {
+      return ctx.request<GmgnRankItem[]>("GET", "/v1/market/token_top_traders", {
         params,
         weight: 5,
       });

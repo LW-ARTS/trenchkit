@@ -41,11 +41,16 @@ function normalizeIsOpenOrClose(rawValue: number | undefined): boolean {
 }
 
 function normalizeTrade(raw: GmgnSmartMoneyTrade, source: "kol" | "smartmoney"): NormalizedTrade {
+  // GMGN /v1/user/{kol,smartmoney} returns `maker` + `amount_usd` (not `wallet_address`/`value_usd`).
+  // Tolerate both field shapes for forward/backward compat via a loose cast at the boundary.
+  const r = raw as unknown as Record<string, unknown>;
+  const maker = (r.maker as string | undefined) ?? raw.wallet_address ?? "";
+  const amountRaw = (r.amount_usd as number | string | undefined) ?? raw.value_usd ?? 0;
   return {
-    maker: raw.wallet_address,
+    maker,
     makerName: null,
     side: raw.side,
-    amountUsd: raw.value_usd,
+    amountUsd: typeof amountRaw === "string" ? Number.parseFloat(amountRaw) : amountRaw,
     isFullOpen: normalizeIsOpenOrClose(raw.is_open_or_close),
     timestamp: raw.timestamp,
     source,

@@ -75,7 +75,7 @@ function AppShell({ hasPrivateKey }: { hasPrivateKey: boolean }): React.ReactEle
         <Header />
       </Box>
       <PanelGrid />
-      <Box height={1}>
+      <Box height={2}>
         <Footer />
       </Box>
       <ActiveModal hasPrivateKey={hasPrivateKey} />

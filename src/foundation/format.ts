@@ -3,16 +3,22 @@ export function truncateAddress(address: string, chars = 4): string {
   return `${address.slice(0, chars)}...${address.slice(-chars)}`;
 }
 
-export function formatUsd(value: number): string {
-  if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
-  if (value >= 1_000) return `$${(value / 1_000).toFixed(1)}k`;
-  if (value >= 1) return `$${value.toFixed(2)}`;
-  return `$${value.toPrecision(3)}`;
+export function formatUsd(value: number | string): string {
+  // GMGN sometimes serializes numeric fields as strings to preserve precision;
+  // coerce at the format boundary so callers don't all have to.
+  const n = typeof value === "string" ? Number.parseFloat(value) : value;
+  if (!Number.isFinite(n)) return "—";
+  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}k`;
+  if (n >= 1) return `$${n.toFixed(2)}`;
+  return `$${n.toPrecision(3)}`;
 }
 
-export function formatPercent(value: number): string {
-  const sign = value >= 0 ? "+" : "";
-  return `${sign}${(value * 100).toFixed(1)}%`;
+export function formatPercent(value: number | string): string {
+  const n = typeof value === "string" ? Number.parseFloat(value) : value;
+  if (!Number.isFinite(n)) return "—";
+  const sign = n >= 0 ? "+" : "";
+  return `${sign}${(n * 100).toFixed(1)}%`;
 }
 
 export function formatAge(seconds: number): string {

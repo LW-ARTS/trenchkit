@@ -51,8 +51,8 @@ export function createMarketApi(ctx: ApiContext): MarketApi {
       const params: Record<string, string> = {};
       if (options.limit !== undefined) params.limit = String(options.limit);
       if (options.cursor !== undefined) params.cursor = options.cursor;
-      const body = options.filters ?? {};
-      return ctx.request<GmgnTrenchesResponse>("POST", `/api/v1/market/${chain}/trenches`, {
+      const body = { chain, ...(options.filters ?? {}) };
+      return ctx.request<GmgnTrenchesResponse>("POST", "/v1/trenches", {
         params,
         body,
         weight: 3,
@@ -64,11 +64,11 @@ export function createMarketApi(ctx: ApiContext): MarketApi {
       address: string,
       options: { resolution: string; from?: number; to?: number; limit?: number },
     ): Promise<GmgnKlineCandle[]> {
-      const params: Record<string, string> = { resolution: options.resolution };
+      const params: Record<string, string> = { chain, address, resolution: options.resolution };
       if (options.from !== undefined) params.from = String(options.from);
       if (options.to !== undefined) params.to = String(options.to);
       if (options.limit !== undefined) params.limit = String(options.limit);
-      return ctx.request<GmgnKlineCandle[]>("GET", `/api/v1/market/${chain}/kline/${address}`, {
+      return ctx.request<GmgnKlineCandle[]>("GET", "/v1/market/token_kline", {
         params,
         weight: 2,
       });

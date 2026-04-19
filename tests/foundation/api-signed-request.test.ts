@@ -51,12 +51,12 @@ describe("signed request", () => {
     expect(headers["X-Signature"]).toBe("fake-signature-base64");
     expect(headers["X-APIKEY"]).toBe(API_KEY);
     expect(init.method).toBe("POST");
-    expect(url).toContain("/api/v1/trade/sol/swap");
+    expect(url).toContain("/v1/trade/swap");
 
     // signRequest receives (path, sortedQuerystring, bodyJson, timestamp).
     expect(signSpy).toHaveBeenCalledTimes(1);
     const [path, qs, body, ts] = signSpy.mock.calls[0] as [string, string, string, number];
-    expect(path).toBe("/api/v1/trade/sol/swap");
+    expect(path).toBe("/v1/trade/swap");
     // Querystring is sorted alphabetically: client_id, timestamp.
     const qsEntries = qs.split("&").map((p) => p.split("=")[0]);
     expect(qsEntries).toEqual([...qsEntries].sort());
@@ -64,6 +64,7 @@ describe("signed request", () => {
     expect(qsEntries).toContain("timestamp");
     expect(body).toBe(
       JSON.stringify({
+        chain: "sol",
         from: "wallet1",
         input_token: "SOL",
         output_token: "TOKEN",

@@ -24,8 +24,9 @@ export interface TradeApi {
 export function createTradeApi(ctx: ApiContext): TradeApi {
   return {
     getQuote(chain, from, inputToken, outputToken, amount, slippage) {
-      return ctx.request<GmgnQuoteResponse>("GET", `/api/v1/trade/${chain}/quote`, {
+      return ctx.request<GmgnQuoteResponse>("GET", "/v1/trade/quote", {
         params: {
+          chain,
           from,
           input_token: inputToken,
           output_token: outputToken,
@@ -37,23 +38,24 @@ export function createTradeApi(ctx: ApiContext): TradeApi {
     },
 
     submitSwap(chain, request) {
-      return ctx.request<GmgnSwapResponse>("POST", `/api/v1/trade/${chain}/swap`, {
-        body: request,
+      return ctx.request<GmgnSwapResponse>("POST", "/v1/trade/swap", {
+        body: { chain, ...request },
         weight: 3,
         sign: true,
       });
     },
 
     getOrderStatus(chain, orderId) {
-      return ctx.request<GmgnSwapResponse>("GET", `/api/v1/trade/${chain}/order/${orderId}`, {
+      return ctx.request<GmgnSwapResponse>("GET", "/v1/trade/query_order", {
+        params: { chain, order_id: orderId },
         weight: 1,
         sign: true,
       });
     },
 
     getStrategyOrders(chain, walletAddress) {
-      return ctx.request<GmgnStrategyOrder[]>("GET", `/api/v1/trade/${chain}/strategy_orders`, {
-        params: { wallet: walletAddress },
+      return ctx.request<GmgnStrategyOrder[]>("GET", "/v1/trade/strategy_orders", {
+        params: { chain, wallet_address: walletAddress },
         weight: 1,
         sign: true,
       });

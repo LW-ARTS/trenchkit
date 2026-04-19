@@ -51,6 +51,7 @@ export const ResearchContext = createContext<TokenAnalysis | null | undefined>(u
 export const ClockContext = createContext<Date | null>(null);
 export const ActionsContext = createContext<Actions | null>(null);
 export const RateLimitStatusContext = createContext<"ok" | "rate-limited" | null>(null);
+export const LastActionContext = createContext<string | null>(null);
 export const PipelineRefContext = createContext<React.MutableRefObject<Pipeline | null> | null>(
   null,
 );
@@ -76,6 +77,7 @@ export function PipelineProvider({
   const [research, setResearch] = useState<TokenAnalysis | null>(null);
   const [clock, setClock] = useState<Date>(() => new Date());
   const [rateLimitStatus, setRateLimitStatus] = useState<"ok" | "rate-limited">("ok");
+  const [lastAction, setLastAction] = useState<string | null>(null);
 
   const pipelineRef = useRef<Pipeline | null>(null);
   // React 19 strict-mode guard: fresh mount gets a fresh ref; never reset in
@@ -178,14 +180,16 @@ export function PipelineProvider({
       triggerScan: async () => {
         const p = pipelineRef.current;
         if (!p) return;
+        setLastAction("scanning…");
         try {
           const result = await p.scan();
           setScanner(result);
-        } catch {
-          // swallow — user-triggered scan failure (e.g., 429 rate limit) should
-          // not crash the TUI. Rate-limit indicator in Header already surfaces
-          // the condition; next tick will retry.
+          setLastAction(`scan ok (${result.length})`);
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          setLastAction(msg.includes("429") ? "rate-limited" : "scan failed");
         }
+        setTimeout(() => setLastAction(null), 2000);
       },
       requestResearch: async (address: string) => {
         const p = pipelineRef.current;
@@ -237,7 +241,9 @@ export function PipelineProvider({
                 <ClockContext.Provider value={clock}>
                   <ActionsContext.Provider value={actions}>
                     <RateLimitStatusContext.Provider value={rateLimitStatus}>
-                      {children}
+                      <LastActionContext.Provider value={lastAction}>
+                        {children}
+                      </LastActionContext.Provider>
                     </RateLimitStatusContext.Provider>
                   </ActionsContext.Provider>
                 </ClockContext.Provider>

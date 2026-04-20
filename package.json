@@ -1,11 +1,18 @@
 {
   "name": "trenchkit",
   "version": "0.1.0",
-  "description": "Real-time crypto intelligence pipeline built on GMGN OpenAPI",
+  "description": "From 500 GMGN trending tokens to 3-5 high-conviction plays, in your terminal. CLI + TUI dashboard for SOL / BSC / Base, built on the GMGN OpenAPI.",
   "type": "module",
   "bin": {
     "trenchkit": "./dist/index.js"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "ARCHITECTURE.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup",
@@ -13,17 +20,40 @@
     "test:watch": "vitest",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm test && npm run build"
   },
   "keywords": [
     "gmgn",
     "solana",
+    "bsc",
+    "base",
     "crypto",
+    "memecoin",
+    "trading",
+    "smart-money",
+    "cli",
+    "tui",
+    "ink",
+    "terminal",
+    "dashboard",
     "intelligence",
-    "cli"
+    "scanner"
   ],
-  "author": "@LWARTSS",
+  "author": {
+    "name": "LW Arts",
+    "email": "lw.arts.designer@gmail.com",
+    "url": "https://lwdesigns.art"
+  },
   "license": "MIT",
+  "homepage": "https://github.com/LW-ARTS/trenchkit#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LW-ARTS/trenchkit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/LW-ARTS/trenchkit/issues"
+  },
   "engines": {
     "node": ">=22.0.0"
   },

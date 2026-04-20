@@ -1,0 +1,50 @@
+name: Feature request
+description: Propose a change or addition.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Propose the feature by describing the problem first, the solution second.
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What's missing or frustrating in your current workflow?
+      placeholder: "I want to filter the scanner by dev wallet age, so I can skip tokens from fresh-dev cycles."
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Specific enough that someone could implement it. Flags, commands, UI changes, expected output.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you considered
+      description: What else could solve this? Why is the proposal better?
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - CLI command
+        - Scanner / filters
+        - Scorer / conviction
+        - Live dashboard
+        - Trading
+        - Configuration
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: checked
+    attributes:
+      label: Confirmations
+      options:
+        - label: I searched existing issues and discussions before opening this one.
+          required: true

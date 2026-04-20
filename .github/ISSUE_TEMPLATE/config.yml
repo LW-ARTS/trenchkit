@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/LW-ARTS/trenchkit/blob/main/SECURITY.md
+    about: Do not open a public issue. Email lw.arts.designer@gmail.com instead.
+  - name: Ask a question
+    url: https://github.com/LW-ARTS/trenchkit/discussions
+    about: For usage questions and help, use Discussions.

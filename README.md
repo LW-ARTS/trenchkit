@@ -40,8 +40,12 @@ Every token comes with a receipt: why it qualified, what dimensions scored, whic
 ## Quick start
 
 ```bash
-# 1. Install
-npm install -g trenchkit
+# 1. Clone and build (npm package coming soon)
+git clone https://github.com/LW-ARTS/trenchkit.git
+cd trenchkit
+npm install
+npm run build
+npm link        # puts `trenchkit` on your PATH
 
 # 2. Configure (grab an API key at https://gmgn.ai/ai)
 trenchkit init
@@ -53,7 +57,7 @@ trenchkit scan --min-score 70
 trenchkit live
 ```
 
-That's it. Analysis commands work with a free GMGN read-only key. Trading is opt-in and requires a signed key you control.
+Analysis commands work with a free GMGN read-only API key. Trading is opt-in and requires a signed Ed25519 key you control.
 
 ## Why trenchkit (vs the alternatives)
 
@@ -126,7 +130,7 @@ $ trenchkit research <token_address>
   CONVICTION SCORE: 87/100 HIGH
 ```
 
-Add `--json` for machine-readable output (wire it into Telegram, Discord, a bot, whatever).
+Add `--json` for machine-readable output. Pipe it into jq, a Telegram bot, a Discord webhook, your own alert engine.
 
 ### Live dashboard: 4 panels, keyboard driven
 
@@ -134,7 +138,7 @@ Add `--json` for machine-readable output (wire it into Telegram, Discord, a bot,
 $ trenchkit live
 ```
 
-4 panels (Scanner, Smart Money feed, Convergence alerts, Recent research) on a single refresh schedule tuned to stay inside the GMGN rate-limit budget. Keyboard navigation: `S` scan, `W` wallet lookup, `R` research, `T` trade, `Tab` switch panels, `Q` quit. SSH-friendly. Looks great over a VPS.
+4 panels (Scanner, Smart Money feed, Convergence alerts, Recent research) on a single refresh schedule tuned to stay inside the GMGN rate-limit budget. Keyboard driven: `S` scan, `W` wallet lookup, `R` research, `T` trade, `Tab` switch panels, `Q` quit. Ships well over SSH and tmux, so you can run it on a $4 VPS and monitor from your phone.
 
 ### Trade (opt-in): swap with server-side TP and SL
 
@@ -147,7 +151,7 @@ $ trenchkit trade buy <token_address> --amount 0.5 --tp 150 --sl 30
 ```
 
 - Requires `GMGN_PRIVATE_KEY` (configured via `trenchkit init`). All analysis works without it.
-- Every trade is previewed and confirmed. `--yes` skips the prompt but the `maxTradeAmount` cap in `config.json` still enforces the cap.
+- Every trade is previewed and confirmed. `--yes` skips the prompt, but the `maxTradeAmount` cap in `config.json` still applies.
 - TP and SL are attached server-side via `condition_orders`. No local polling, no missed fills if your laptop sleeps.
 - On Solana, `priorityFee` and `tipFee` are auto-injected when TP/SL is attached (otherwise the swap succeeds but strategy creation silently fails, a GMGN-side quirk).
 - **POST /swap is never retried** on auth-timestamp-expired or network error. The CLI directs you to `trenchkit trade orders` to verify execution before resubmitting. Prevents double-spend on non-idempotent POSTs.

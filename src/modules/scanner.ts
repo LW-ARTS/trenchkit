@@ -95,7 +95,8 @@ export class Scanner {
   }
 
   private passesHardFilters(item: GmgnRankItem): boolean {
-    if ((item.rug_ratio ?? 0) > HARD_FILTERS.maxRugRatio) return false;
+    // rug_ratio missing = unknown rug risk → reject. Defaulting to 0 would silently pass unknowns.
+    if (item.rug_ratio == null || item.rug_ratio > HARD_FILTERS.maxRugRatio) return false;
     if ((item.holder_count ?? 0) < HARD_FILTERS.minHolderCount) return false;
 
     const age = item.created_at ? Math.floor(Date.now() / 1000) - item.created_at : null;

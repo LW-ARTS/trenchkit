@@ -24,7 +24,7 @@ import {
  *
  * React 19 + Ink 7 do NOT commit setState synchronously — tests that write to
  * stdin or emit events must await a microtask before reading lastFrame().
- * Hoisted from Phase 1 smoke.test.tsx inline pattern (D-22).
+ * Hoisted from the original inline smoke test pattern.
  */
 export async function flushFrame(ticks = 1): Promise<void> {
   for (let i = 0; i < ticks; i++) {
@@ -44,7 +44,7 @@ export async function flushFrame(ticks = 1): Promise<void> {
  * Usage:
  *   await waitForFrame(30_000);  // advance 30s + flush frame
  *
- * D-22 (Phase 2 CONTEXT) extension. TUI-07 (Phase 4) requirement.
+ * D-22  extension. TUI-07  requirement.
  */
 export async function waitForFrame(ms: number): Promise<void> {
   await vi.advanceTimersByTimeAsync(ms);
@@ -85,7 +85,7 @@ export type RenderWithPipelineOptions = {
 /**
  * Render `children` inside a MockPipelineProvider that exposes the same 9 per-slice
  * contexts as the real PipelineProvider — but without starting intervals or
- * subscribing to pipelineEvents. Panels + hook tests stay ≤5 lines of setup (D-23).
+ * subscribing to pipelineEvents. Panels + hook tests stay ≤5 lines of setup .
  */
 export function renderWithPipeline(options: RenderWithPipelineOptions): ReturnType<typeof render> {
   return render(<MockPipelineProvider {...options}>{options.children}</MockPipelineProvider>);
@@ -95,7 +95,7 @@ export function renderWithPipeline(options: RenderWithPipelineOptions): ReturnTy
  * Like `renderWithPipeline` but also wraps in `<FocusProvider>` so panels (and
  * any consumer using `useFocus()`) resolve without needing the full App shell.
  *
- * Phase 3 panels each call `useFocus()` to read focusedPanel + selectedRow —
+ * panels each call `useFocus()` to read focusedPanel + selectedRow —
  * without this wrapper they would throw "useFocus must be used inside FocusProvider".
  */
 export function renderWithShell(options: RenderWithPipelineOptions): ReturnType<typeof render> {

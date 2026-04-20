@@ -22,7 +22,6 @@ export type SoftFilterResult = {
   healthyGrowth: boolean;
   liquidityStable: boolean;
   hasSmartMoney: boolean;
-  hasRenowned: boolean;
   lowRatTrader: boolean;
 };
 
@@ -34,7 +33,6 @@ export function evaluateSoftFilters(analysis: TokenAnalysis): SoftFilterResult {
       analysis.holderGrowthRate <= 0.5,
     liquidityStable: analysis.liquidityStable !== false,
     hasSmartMoney: (analysis.smartMoneyWalletCount ?? 0) > 0,
-    hasRenowned: false, // TODO: add renowned field if available
     lowRatTrader: analysis.ratTraderRate === null || analysis.ratTraderRate < 0.3,
   };
 }

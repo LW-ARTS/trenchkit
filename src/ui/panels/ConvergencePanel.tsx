@@ -17,17 +17,7 @@ const STRENGTH_COLOR: Record<SignalStrength, string> = {
   VERY_STRONG: "magenta",
 };
 
-/**
- * Derive a SignalStrength label from the numeric `strength` field.
- *
- * The convergence slice in PipelineProvider currently stores event-payload
- * subsets (tokenAddress/chain/strength) and the `signalLevel` field is
- * `undefined` at runtime — see Phase 2 02-01 SUMMARY "Known Stubs". Until the
- * provider is widened to carry the full ConvergenceAlert shape, this thresholding
- * gives the panel deterministic colors.
- *
- * computeConvergenceStrength clamps to [0,100], so 4 evenly spaced bands.
- */
+/** Derive a SignalStrength label from the numeric `strength` field (0-100). */
 function deriveSignalLevel(strength: number): SignalStrength {
   if (strength < 25) return "WEAK";
   if (strength < 50) return "MEDIUM";

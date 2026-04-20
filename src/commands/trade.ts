@@ -41,6 +41,27 @@ function resolveWallet(flag: string | undefined): string | null {
   return loadConfig().walletAddress ?? null;
 }
 
+function parsePositive(raw: string, flag: string): number {
+  const n = parseFloat(raw);
+  if (!Number.isFinite(n) || n <= 0) {
+    throw new Error(`Invalid --${flag} value: "${raw}". Expected a positive number.`);
+  }
+  return n;
+}
+
+function parseTrailPair(raw: string, flag: string): { activationPct: number; callbackPct: number } {
+  const [aRaw, cRaw] = raw.split(":");
+  if (aRaw === undefined || cRaw === undefined) {
+    throw new Error(
+      `Invalid --${flag} value: "${raw}". Expected "activation:callback" (e.g. "50:10").`,
+    );
+  }
+  return {
+    activationPct: parsePositive(aRaw, `${flag} activation`),
+    callbackPct: parsePositive(cRaw, `${flag} callback`),
+  };
+}
+
 function parseTpSl(opts: {
   tp?: string;
   sl?: string;
@@ -48,16 +69,10 @@ function parseTpSl(opts: {
   trailSl?: string;
 }): TpSlOptions | undefined {
   const out: TpSlOptions = {};
-  if (opts.tp !== undefined) out.tpPct = parseFloat(opts.tp);
-  if (opts.sl !== undefined) out.slPct = parseFloat(opts.sl);
-  if (opts.trailTp) {
-    const [activation, callback] = opts.trailTp.split(":").map(parseFloat);
-    if (activation && callback) out.trailTp = { activationPct: activation, callbackPct: callback };
-  }
-  if (opts.trailSl) {
-    const [activation, callback] = opts.trailSl.split(":").map(parseFloat);
-    if (activation && callback) out.trailSl = { activationPct: activation, callbackPct: callback };
-  }
+  if (opts.tp !== undefined) out.tpPct = parsePositive(opts.tp, "tp");
+  if (opts.sl !== undefined) out.slPct = parsePositive(opts.sl, "sl");
+  if (opts.trailTp) out.trailTp = parseTrailPair(opts.trailTp, "trail-tp");
+  if (opts.trailSl) out.trailSl = parseTrailPair(opts.trailSl, "trail-sl");
   return Object.keys(out).length > 0 ? out : undefined;
 }
 

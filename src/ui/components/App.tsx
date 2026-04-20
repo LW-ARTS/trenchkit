@@ -22,7 +22,7 @@ export type AppProps = {
   /**
    * TrenchkitConfig — threaded down to PipelineProvider so the `submitTrade`
    * action has the cap + wallet + fee defaults it needs to build a TradeIntent.
-   * Optional because Phase 2 test harnesses mount <App> without it; trade flow
+   * Optional because test harnesses mount <App> without it; trade flow
    * throws a clear error if missing when the T-key submit tries to fire.
    */
   config?: TrenchkitConfig;
@@ -41,7 +41,7 @@ export type AppProps = {
  *   </PipelineProvider>
  *
  * The PipelineProvider owns the Pipeline instance + all interval cadences
- * (locked decision from Phase 2). FocusProvider scopes focus state to this
+ * (locked design decision). FocusProvider scopes focus state to this
  * mount; ModalProvider handles the active overlay ID.
  */
 export function App(props: AppProps): React.ReactElement {
@@ -85,7 +85,7 @@ function AppShell({ hasPrivateKey }: { hasPrivateKey: boolean }): React.ReactEle
 
 /**
  * Renders at most one modal based on ModalProvider state. Dim-backdrop of the
- * grid (D-09) is deferred — the cyan double-border ModalBackdrop is visually
+ * grid  is deferred — the cyan double-border ModalBackdrop is visually
  * dominant for v1. Documented as a minor deviation from D-09 in SUMMARY.
  */
 function ActiveModal({ hasPrivateKey }: { hasPrivateKey: boolean }): React.ReactElement | null {

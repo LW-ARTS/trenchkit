@@ -8,9 +8,9 @@ import { ModalProvider, useModal } from "../../../src/ui/providers/ModalProvider
 import { flushFrame, renderWithPipeline } from "../helpers.js";
 
 /**
- * Phase 4 contract lock: TUI-07c — keybinding routing semantics.
+ * Contract lock: — keybinding routing semantics.
  *
- * Locks Phase 3 02-02's useKeybinds routing against regression:
+ * Locks the useKeybinds routing against regression:
  *   - s         → triggers actions.triggerScan (no-throw, focus unchanged)
  *   - Tab       → cycles focus clockwise
  *   - →  (CSI C) → moves spatial focus right
@@ -20,8 +20,6 @@ import { flushFrame, renderWithPipeline } from "../helpers.js";
  *
  * NOTE on `q` → useApp().exit(): skipped per plan body escape hatch. Ink's
  * useApp() is hard to spy on without rewriting ink-testing-library's harness.
- * Coverage lives in .planning/phases/03-panels-app-shell-live-command/
- * 03-HUMAN-UAT.md item 5 (human UAT).
  */
 
 /**

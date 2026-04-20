@@ -14,15 +14,15 @@ import { PipelineProvider } from "../../../src/ui/providers/PipelineProvider.js"
 import { waitForFrame } from "../helpers.js";
 
 /**
- * Phase 4 contract lock: TUI-07a — slice update cadence.
+ * Contract lock: — slice update cadence.
  *
- * Locks the Phase 2 PipelineProvider behavior against future regression:
+ * Locks the PipelineProvider behavior against future regression:
  *   - scanner slice updates 30s after mount
  *   - clock slice updates 1s after mount
  *   - smart-money slice updates 60s after mount
  *   - convergence slice updates in response to pipelineEvents.emit
  *
- * Also validates that Phase 4 Task 2's global `afterEach` cleanup actually
+ * Also validates that the global `afterEach` cleanup actually
  * runs (register listener in one test, assert zero residual in the next).
  */
 

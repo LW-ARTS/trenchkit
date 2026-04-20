@@ -8,9 +8,9 @@ import { SmartMoneyPanel } from "../../../src/ui/panels/SmartMoneyPanel.js";
 import { renderWithShell } from "../helpers.js";
 
 /**
- * Phase 4 contract lock: TUI-07b — panel error isolation.
+ * Contract lock: — panel error isolation.
  *
- * Locks Phase 3 02-01's PanelErrorBoundary composition against regression:
+ * Locks the PanelErrorBoundary composition against regression:
  * a single panel throwing MUST render ErrorBox in ITS cell and leave the
  * other 3 panels rendering their loading/empty states.
  *

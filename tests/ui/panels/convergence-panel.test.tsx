@@ -40,7 +40,7 @@ describe("ConvergencePanel", () => {
   });
 
   it("derives signal level from numeric strength when signalLevel is undefined", () => {
-    // Simulate the Phase 2 known-stub case where the convergence slice carries
+    // Simulate the legacy event-payload-only case where the convergence slice carries
     // only {tokenAddress, chain, strength} subsets — signalLevel is undefined
     // at runtime even though the type says non-optional.
     const baseAlert = makeAlert({ strength: 90 });

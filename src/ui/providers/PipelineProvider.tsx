@@ -13,7 +13,7 @@ import { pushConvergence } from "../util/convergence-buffer.js";
 /**
  * Aggregate Context value TYPE — exposed for consumers that need the full shape
  * (e.g., helpers.tsx MockPipelineProvider). The runtime layer uses per-slice
- * contexts so Phase 3 panels only re-render when their slice changes (D-01).
+ * contexts so panels only re-render when their slice changes .
  */
 export type PipelineContextValue = {
   chain: Chain;
@@ -174,14 +174,14 @@ export function PipelineProvider({
   }, [client, chain]);
 
   // Config + client held in refs so the `actions` memo can stay dependency-free
-  // and remain referentially stable across re-renders (D-03).
+  // and remain referentially stable across re-renders .
   const configRef = useRef<TrenchkitConfig | undefined>(config);
   configRef.current = config;
   const clientRef = useRef<GmgnClient>(client);
   clientRef.current = client;
 
   // Stable action dispatchers — referentially stable across re-renders so that
-  // `useActions()` consumers never re-render on slice changes (D-03).
+  // `useActions()` consumers never re-render on slice changes .
   const actions = useMemo<Actions>(
     () => ({
       triggerScan: async () => {

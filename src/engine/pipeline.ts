@@ -48,7 +48,7 @@ export class Pipeline {
   async scan(): Promise<TokenAnalysis[]> {
     const candidates = await this.scanner.pollTrending();
     // Trenches endpoint path is not yet migrated to the new /v1/trenches shape
-    // (tracked as Phase 1.1 tech debt). A failure here must not abort the whole
+    // (tracked as known tech debt). A failure here must not abort the whole
     // scan — trenches is additive data on top of trending.
     let trenchCandidates: TokenAnalysis[] = [];
     try {

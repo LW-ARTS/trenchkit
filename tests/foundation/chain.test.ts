@@ -89,12 +89,15 @@ describe("isValidChain", () => {
     expect(isValidChain(input)).toBe(true);
   });
 
-  it.each(["doge", "ethereum", "", "SOL", " sol"])(
-    "returns false for unknown chain %s",
-    (input) => {
-      expect(isValidChain(input)).toBe(false);
-    },
-  );
+  it.each([
+    "doge",
+    "ethereum",
+    "",
+    "SOL",
+    " sol",
+  ])("returns false for unknown chain %s", (input) => {
+    expect(isValidChain(input)).toBe(false);
+  });
 
   it("narrows string to Chain in a type-guard position", () => {
     const s: string = "sol";

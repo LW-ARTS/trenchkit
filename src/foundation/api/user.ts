@@ -34,7 +34,11 @@ export function createUserApi(ctx: ApiContext): UserApi {
   return {
     getWalletStats(chain: Chain, wallet: string, period?: string): Promise<GmgnWalletStats> {
       // GMGN requires `period` — default to 7d when caller didn't specify.
-      const params: Record<string, string> = { chain, wallet_address: wallet, period: period ?? "7d" };
+      const params: Record<string, string> = {
+        chain,
+        wallet_address: wallet,
+        period: period ?? "7d",
+      };
       return ctx.request<GmgnWalletStats>("GET", "/v1/user/wallet_stats", {
         params,
         weight: 3,

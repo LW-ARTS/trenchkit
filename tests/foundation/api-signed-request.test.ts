@@ -1,9 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { AuthTimestampExpiredError, createGmgnClient } from "../../src/foundation/api/client.js";
 import * as auth from "../../src/foundation/auth.js";
-import {
-  AuthTimestampExpiredError,
-  createGmgnClient,
-} from "../../src/foundation/api/client.js";
 
 const API_KEY = "test-api-key-12345";
 const OK_ENVELOPE = { code: 0, data: { order_id: "o1", status: "pending" } };
@@ -89,9 +86,7 @@ describe("signed request", () => {
 
   it("surfaces AuthTimestampExpiredError on 401 AUTH_TIMESTAMP_EXPIRED and never retries POST", async () => {
     fetchSpy.mockReset();
-    fetchSpy.mockResolvedValue(
-      mockResponse(null, { status: 401, text: "AUTH_TIMESTAMP_EXPIRED" }),
-    );
+    fetchSpy.mockResolvedValue(mockResponse(null, { status: 401, text: "AUTH_TIMESTAMP_EXPIRED" }));
 
     const client = createGmgnClient(API_KEY);
     await expect(

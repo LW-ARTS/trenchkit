@@ -1,4 +1,7 @@
-<!-- GSD:project-start source:PROJECT.md -->
+# trenchkit — architecture reference
+
+> Deep-dive technical documentation. For product overview, see [README](README.md).
+
 ## Project
 
 **trenchkit**
@@ -15,9 +18,7 @@ trenchkit is a real-time crypto intelligence pipeline and TUI dashboard built on
 - **Security:** Private key lifecycle rules (Buffer zeroing, no `process.env` persistence, sanitized errors) already encoded in `src/foundation/auth.ts` and `src/foundation/api/client.ts` — Wave 6 must preserve these.
 - **Conventions:** Atomic conventional commits (feat/fix/chore/test/docs/style scopes), advisor call before committing to an approach, Biome-clean + type-clean + tests-passing before each commit.
 - **Dependencies:** No adding new runtime deps for Wave 6 beyond what `package.json` already declares (ink, react, ink-testing-library). Dev-only tools OK.
-<!-- GSD:project-end -->
 
-<!-- GSD:stack-start source:codebase/STACK.md -->
 ## Technology Stack
 
 ## Languages
@@ -65,9 +66,7 @@ trenchkit is a real-time crypto intelligence pipeline and TUI dashboard built on
 - End-user requires a GMGN OpenAPI key (https://gmgn.ai/ai).
 - **IPv4-only network required** — GMGN API does not support IPv6 (spec §3).
 ## npm Scripts
-<!-- GSD:stack-end -->
 
-<!-- GSD:conventions-start source:CONVENTIONS.md -->
 ## Conventions
 
 ## Tooling
@@ -167,9 +166,7 @@ trenchkit is a real-time crypto intelligence pipeline and TUI dashboard built on
 - Example: `feat(trade): add MaxTradeAmountExceeded guard to executeTrade`
 - **Atomic:** one logical change per commit. A refactor that also adds a feature gets split into two commits.
 - **Keep commits compilable:** each commit should pass `npm run typecheck && npm run lint && npm run test`.
-<!-- GSD:conventions-end -->
 
-<!-- GSD:architecture-start source:ARCHITECTURE.md -->
 ## Architecture
 
 ## Pattern Overview
@@ -248,42 +245,3 @@ trenchkit is a real-time crypto intelligence pipeline and TUI dashboard built on
 - Signing payload: `${path}:${sortedQuerystring}:${body}:${timestamp}` per `src/foundation/auth.ts:47`. Timestamp and `client_id` are always appended to query params.
 - Applied inside `ApiContext.request` in `src/foundation/api/client.ts:146-165`. Every HTTP call flows through `rateLimiter.schedule({ weight, priority })`.
 - Defaults (in `src/foundation/rate-limiter.ts:12-17`): reservoir 10, refresh every 1s by 10, max queue depth 50.
-## Diagram
-```
-```
-<!-- GSD:architecture-end -->
-
-<!-- GSD:skills-start source:skills/ -->
-## Project Skills
-
-| Skill | Description | Path |
-|-------|-------------|------|
-| gmgn-cooking | "[FINANCIAL EXECUTION] Create and launch meme coins and crypto tokens on launchpads (Pump.fun, PancakeSwap, FourMeme, Bonk, BAGS, Flap, Raydium, etc.) via bonding curve fair launch, or query token creation stats by launchpad via GMGN API. Requires explicit user confirmation. Use when user asks to create a token, launch a meme coin, cook a coin, deploy on a launchpad, or check launchpad creation stats on Solana, BSC, Base, ETH, or TON." | `.agents/skills/gmgn-cooking/SKILL.md` |
-| gmgn-market | Get crypto and meme token price charts (K-line, candlestick, OHLCV), trending meme coin rankings by volume, and newly launched tokens on launchpads (pump.fun, fourmeme, letsbonk, Raydium, etc.) via GMGN API on Solana, BSC, or Base. Use when user asks for price chart, trending tokens, what's pumping, hot coins, new launches, or wants to discover early-stage opportunities. | `.agents/skills/gmgn-market/SKILL.md` |
-| gmgn-portfolio | Analyze any crypto wallet by address — holdings, realized/unrealized P&L, win rate, trading history, performance stats, specific token balance, and tokens created by a developer wallet (with ATH market cap and DEX graduation status) via GMGN API on Solana, BSC, or Base. Use when user asks about a wallet's holdings, P&L, win rate, what tokens a dev has launched, the highest ATH token a dev ever created, or wants a wallet report to decide whether to copy-trade or follow. | `.agents/skills/gmgn-portfolio/SKILL.md` |
-| gmgn-swap | "[FINANCIAL EXECUTION] Buy and sell meme coins and crypto tokens on Solana, BSC, or Base — single swap, multi-wallet batch trading, limit orders, stop loss, take profit, trailing stop loss, trailing take profit via GMGN API. Requires explicit user confirmation. Use when user asks to buy, sell, or swap a token, trade from multiple wallets, set a limit order, stop loss, take profit, or check order status." | `.agents/skills/gmgn-swap/SKILL.md` |
-| gmgn-token | Research any crypto or meme token by address — real-time price, market cap, liquidity, holder list, trader list, top Smart Money and KOL positions, security audit (honeypot, rug pull risk, dev wallet, renounced status), social links (Twitter/X, website) via GMGN API on Solana, BSC, or Base. Use when user asks about a token's price, safety, holders, traders, smart money exposure, or wants due diligence before buying. | `.agents/skills/gmgn-token/SKILL.md` |
-| gmgn-track | Get real-time crypto buy/sell activity from Smart Money wallets, KOL influencer wallets, and personally followed wallets via GMGN API — alpha signals, whale tracking, meme token copy-trading ideas on Solana, BSC, or Base. Use when user asks what smart money or KOLs are buying, wants whale alerts, on-chain alpha, or copy-trade signals. (For a specific wallet address, use gmgn-portfolio.) | `.agents/skills/gmgn-track/SKILL.md` |
-<!-- GSD:skills-end -->
-
-<!-- GSD:workflow-start source:GSD defaults -->
-## GSD Workflow Enforcement
-
-Before using Edit, Write, or other file-changing tools, start work through a GSD command so planning artifacts and execution context stay in sync.
-
-Use these entry points:
-- `/gsd-quick` for small fixes, doc updates, and ad-hoc tasks
-- `/gsd-debug` for investigation and bug fixing
-- `/gsd-execute-phase` for planned phase work
-
-Do not make direct repo edits outside a GSD workflow unless the user explicitly asks to bypass it.
-<!-- GSD:workflow-end -->
-
-
-
-<!-- GSD:profile-start -->
-## Developer Profile
-
-> Profile not yet configured. Run `/gsd-profile-user` to generate your developer profile.
-> This section is managed by `generate-claude-profile` -- do not edit manually.
-<!-- GSD:profile-end -->

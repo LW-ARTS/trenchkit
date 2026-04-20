@@ -1,5 +1,19 @@
 node_modules/
 dist/
 *.tsbuildinfo
+
+# secrets
 .env
 .env.local
+
+# internal workflow (kept out of public repo)
+.planning/
+.claude/
+.agents/
+.kiro/
+.windsurf/
+docs/
+skills-lock.json
+
+# OS
+.DS_Store

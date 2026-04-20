@@ -9,9 +9,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Powered by GMGN](https://img.shields.io/badge/Powered_by-GMGN_OpenAPI-FF6B00)](https://gmgn.ai/ai)
 
-<!-- TODO: record hero.gif with vhs or asciinema: `trenchkit live` -->
-<!-- ![trenchkit live dashboard](docs/hero.gif) -->
-
 </div>
 
 ---

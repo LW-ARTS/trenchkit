@@ -1,6 +1,6 @@
 import { Text, useInput } from "ink";
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { validateAddress } from "../../foundation/address.js";
 import { getChainConfig } from "../../foundation/chain.js";
 import type { TradeIntent } from "../../modules/trade-flow.js";
@@ -38,6 +38,18 @@ export function TradeModal({ hasPrivateKey }: TradeModalProps): React.ReactEleme
   const [amount, setAmount] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const mountedRef = useRef<boolean>(true);
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      mountedRef.current = false;
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+        closeTimeoutRef.current = null;
+      }
+    },
+    [],
+  );
 
   if (!hasPrivateKey) {
     return (
@@ -99,6 +111,7 @@ export function TradeModal({ hasPrivateKey }: TradeModalProps): React.ReactEleme
     void (async () => {
       try {
         const outcome = await actions.submitTrade(intent);
+        if (!mountedRef.current) return;
         setResult({
           ok: true,
           message: outcome.tx_hash
@@ -106,8 +119,12 @@ export function TradeModal({ hasPrivateKey }: TradeModalProps): React.ReactEleme
             : `Order ${outcome.order_id}: ${outcome.status}`,
         });
         setStage("result");
-        setTimeout(close, 2000);
+        closeTimeoutRef.current = setTimeout(() => {
+          closeTimeoutRef.current = null;
+          if (mountedRef.current) close();
+        }, 2000);
       } catch (err) {
+        if (!mountedRef.current) return;
         setResult({
           ok: false,
           message: err instanceof Error ? err.message : String(err),

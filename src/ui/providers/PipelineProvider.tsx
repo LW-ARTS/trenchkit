@@ -82,13 +82,15 @@ export function PipelineProvider({
   const mountedRef = useRef<boolean>(true);
 
   const pipelineRef = useRef<Pipeline | null>(null);
-  // React 19 strict-mode guard: fresh mount gets a fresh ref; never reset in
-  // cleanup (D-05, D-06 — canonical "bootstrapped once per instance" pattern).
-  const bootstrapped = useRef<boolean>(false);
 
   useEffect(() => {
-    if (bootstrapped.current) return;
-    bootstrapped.current = true;
+    // Chain switch: flush previous-chain slice state so users don't briefly see
+    // stale data from the old pipeline before the first poll of the new one.
+    setScanner(null);
+    setSmartMoney(null);
+    setConvergence([]);
+    setResearch(null);
+    mountedRef.current = true;
 
     const pipeline = new Pipeline(client, chain);
     pipelineRef.current = pipeline;
@@ -174,11 +176,14 @@ export function PipelineProvider({
   }, [client, chain]);
 
   // Config + client held in refs so the `actions` memo can stay dependency-free
-  // and remain referentially stable across re-renders .
+  // and remain referentially stable across re-renders. Ref writes happen in an
+  // effect (not during render) to satisfy React 19 concurrent-mode rules.
   const configRef = useRef<TrenchkitConfig | undefined>(config);
-  configRef.current = config;
   const clientRef = useRef<GmgnClient>(client);
-  clientRef.current = client;
+  useEffect(() => {
+    configRef.current = config;
+    clientRef.current = client;
+  }, [config, client]);
 
   // Stable action dispatchers — referentially stable across re-renders so that
   // `useActions()` consumers never re-render on slice changes .
@@ -211,6 +216,7 @@ export function PipelineProvider({
         if (!p) return;
         try {
           const analysis = await p.researchToken(address);
+          if (!mountedRef.current) return;
           setResearch(analysis);
         } catch {
           // swallow — research call may 429 or partial-fail; pipelineEvents

@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "From 500 GMGN trending tokens to 3-5 high-conviction plays, in your terminal. CLI + TUI dashboard for SOL / BSC / Base, built on the GMGN OpenAPI.",
   "type": "module",
+  "sideEffects": false,
   "bin": {
     "trenchkit": "./dist/index.js"
   },
@@ -54,9 +55,15 @@
   "bugs": {
     "url": "https://github.com/LW-ARTS/trenchkit/issues"
   },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "registry": "https://registry.npmjs.org/"
+  },
   "engines": {
     "node": ">=22.0.0"
   },
+  "packageManager": "npm@10.9.0",
   "dependencies": {
     "@noble/ed25519": "^3.1.0",
     "bottleneck": "^2.19.5",

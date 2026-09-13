@@ -2,6 +2,11 @@
 
 All notable changes to trenchkit are documented here. Format loosely follows [Keep a Changelog](https://keepachangelog.com/); versions follow [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+- **Slippage was unvalidated.** `--slippage 2` was sent as 200%. Slippage must be a decimal in (0, 0.5]; whole numbers are rejected with a "did you mean 0.02?" hint. Enforced in `executeTrade`, so the CLI and TUI are both covered.
+
 ## [0.1.0] 2026-04-20
 
 First public release, built for the GMGN Open-Source Case Collection Season 1.

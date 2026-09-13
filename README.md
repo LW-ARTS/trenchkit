@@ -152,6 +152,7 @@ $ trenchkit trade buy <token_address> --amount 0.5 --tp 150 --sl 30
 
 - Requires `GMGN_PRIVATE_KEY` (configured via `trenchkit init`). All analysis works without it.
 - Every trade is previewed and confirmed. `--yes` skips the prompt, but the `maxTradeAmount` cap in `config.json` still applies.
+- `--slippage` is a decimal (`0.02` = 2%), max `0.5`. A whole number like `2` is rejected instead of being sent as 200%.
 - TP and SL are attached server-side via `condition_orders`. No local polling, no missed fills if your laptop sleeps.
 - On Solana, `priorityFee` and `tipFee` are auto-injected when TP/SL is attached (otherwise the swap succeeds but strategy creation silently fails, a GMGN-side quirk).
 - **POST /swap is never retried** on auth-timestamp-expired or network error. The CLI directs you to `trenchkit trade orders` to verify execution before resubmitting. Prevents double-spend on non-idempotent POSTs.

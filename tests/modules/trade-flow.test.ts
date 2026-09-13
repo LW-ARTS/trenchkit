@@ -9,8 +9,10 @@ import {
   buildSwapRequest,
   enforceMaxAmount,
   executeTrade,
+  InvalidSlippageError,
   MaxTradeAmountExceeded,
   pollOrder,
+  validateSlippage,
 } from "../../src/modules/trade-flow.js";
 
 const SOL_NATIVE = "So11111111111111111111111111111111111111112";
@@ -126,7 +128,38 @@ describe("enforceMaxAmount", () => {
   });
 });
 
+describe("validateSlippage", () => {
+  it("accepts decimal slippage up to the 50% ceiling", () => {
+    expect(() => validateSlippage(0.02)).not.toThrow();
+    expect(() => validateSlippage(0.5)).not.toThrow();
+  });
+
+  it("rejects a whole-number percent and suggests the decimal form", () => {
+    expect(() => validateSlippage(2)).toThrow(InvalidSlippageError);
+    expect(() => validateSlippage(2)).toThrow(/did you mean 0\.02/i);
+  });
+
+  it("rejects slippage above the 50% ceiling", () => {
+    expect(() => validateSlippage(0.51)).toThrow(InvalidSlippageError);
+  });
+
+  it("rejects zero, negative, and NaN", () => {
+    for (const s of [0, -0.01, Number.NaN]) {
+      expect(() => validateSlippage(s)).toThrow(InvalidSlippageError);
+    }
+  });
+});
+
 describe("executeTrade", () => {
+  it("rejects invalid slippage BEFORE quote when --yes bypasses confirmation", async () => {
+    const client = makeClient();
+    await expect(
+      executeTrade(client, buyIntent({ slippage: 2 }), baseConfig, { yes: true }),
+    ).rejects.toBeInstanceOf(InvalidSlippageError);
+    expect(client.trade.getQuote).not.toHaveBeenCalled();
+    expect(client.trade.submitSwap).not.toHaveBeenCalled();
+  });
+
   it("enforces cap BEFORE quote when --yes bypasses confirmation", async () => {
     const client = makeClient();
     await expect(

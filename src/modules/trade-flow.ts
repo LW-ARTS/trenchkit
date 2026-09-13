@@ -126,6 +126,37 @@ export class MaxTradeAmountExceeded extends Error {
   }
 }
 
+export const MAX_SLIPPAGE = 0.5;
+
+export class InvalidSlippageError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "InvalidSlippageError";
+  }
+}
+
+const toPct = (decimal: number): number => Number((decimal * 100).toFixed(2));
+
+export function validateSlippage(slippage: number): void {
+  if (!Number.isFinite(slippage) || slippage <= 0) {
+    throw new InvalidSlippageError(
+      `Invalid slippage ${slippage}. Use a decimal between 0 and ${MAX_SLIPPAGE} (0.02 = 2%).`,
+    );
+  }
+  if (slippage >= 1) {
+    // Most likely a percent typed as a whole number (--slippage 2 meaning 2%).
+    const hint = slippage / 100 <= MAX_SLIPPAGE ? ` Did you mean ${slippage / 100}?` : "";
+    throw new InvalidSlippageError(
+      `Slippage ${slippage} means ${toPct(slippage)}%. Slippage is a decimal (0.02 = 2%).${hint}`,
+    );
+  }
+  if (slippage > MAX_SLIPPAGE) {
+    throw new InvalidSlippageError(
+      `Slippage ${toPct(slippage)}% exceeds the ${toPct(MAX_SLIPPAGE)}% maximum.`,
+    );
+  }
+}
+
 export function enforceMaxAmount(intent: TradeIntent, cap: number): void {
   const isBuy = intent.inputToken === getChainConfig(intent.chain).nativeAddress;
   if (!isBuy) return; // cap applies to native-spend buys only
@@ -162,7 +193,8 @@ export async function executeTrade(
   config: TrenchkitConfig,
   options: ExecuteOptions = {},
 ): Promise<GmgnSwapResponse> {
-  // 1. Enforce cap (even when --yes bypasses confirmation).
+  // 1. Validate slippage and enforce cap (even when --yes bypasses confirmation).
+  validateSlippage(intent.slippage);
   enforceMaxAmount(intent, config.maxTradeAmount);
 
   // 2. Quote preview.

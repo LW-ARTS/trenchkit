@@ -9,12 +9,30 @@ import { SmartMoneyTracker } from "../modules/smart-money.js";
 import { passesHardFilters } from "./filters.js";
 import { calculateConviction } from "./scorers/index.js";
 
+// Each research burst costs ~17 rate-limit weight, so scan researches only the
+// top candidates and reuses results across the 30s watch/dashboard ticks.
+const SCAN_RESEARCH_LIMIT = 10;
+const RESEARCH_TTL_MS = 5 * 60_000;
+
+// Research wins where it has data; the trending snapshot fills the gaps
+// (e.g. lifecycleStage, which only the scanner's history can compute).
+function fillMissing(primary: TokenAnalysis, fallback: TokenAnalysis): TokenAnalysis {
+  const merged = { ...primary };
+  for (const key of Object.keys(fallback) as (keyof TokenAnalysis)[]) {
+    if (merged[key] === null && fallback[key] !== null) {
+      (merged as Record<keyof TokenAnalysis, unknown>)[key] = fallback[key];
+    }
+  }
+  return merged;
+}
+
 export class Pipeline {
   private scanner: Scanner;
   private research: ResearchEngine;
   private smartMoney: SmartMoneyTracker;
   private chain: Chain;
   private convergenceHandler: (payload: PipelineEvents["convergence:detected"]) => void;
+  private researchCache = new Map<string, { at: number; analysis: TokenAnalysis }>();
   private disposed = false;
 
   constructor(client: GmgnClient, chain: Chain) {
@@ -44,7 +62,7 @@ export class Pipeline {
     pipelineEvents.off("convergence:detected", this.convergenceHandler);
   }
 
-  // One-shot: scan -> filter -> score (for CLI commands)
+  // One-shot: scan -> filter -> research top candidates -> filter -> score
   async scan(): Promise<TokenAnalysis[]> {
     const candidates = await this.scanner.pollTrending();
     // Trenches endpoint path is not yet migrated to the new /v1/trenches shape
@@ -56,9 +74,24 @@ export class Pipeline {
     } catch {
       // swallow: trending-only scan is still useful
     }
-    const all = [...candidates, ...trenchCandidates];
 
-    return all
+    const unique = new Map<string, TokenAnalysis>();
+    for (const token of [...candidates, ...trenchCandidates]) {
+      if (!unique.has(token.address)) unique.set(token.address, token);
+    }
+    const shortlist = [...unique.values()].filter(passesHardFilters).slice(0, SCAN_RESEARCH_LIMIT);
+
+    // The trending snapshot lacks security, holder, dev, smart money and bot
+    // data, so scoring it directly would score blanks. Research each candidate
+    // sequentially: parallel bursts would overflow the rate limiter's queue.
+    this.pruneResearchCache();
+    const researched: TokenAnalysis[] = [];
+    for (const candidate of shortlist) {
+      const analysis = await this.researchCached(candidate.address);
+      researched.push(fillMissing(analysis, candidate));
+    }
+
+    return researched
       .filter(passesHardFilters)
       .map(calculateConviction)
       .sort((a, b) => (b.convictionScore ?? 0) - (a.convictionScore ?? 0));
@@ -81,5 +114,20 @@ export class Pipeline {
 
   getScanner(): Scanner {
     return this.scanner;
+  }
+
+  private async researchCached(tokenAddress: string): Promise<TokenAnalysis> {
+    const cached = this.researchCache.get(tokenAddress);
+    if (cached && Date.now() - cached.at < RESEARCH_TTL_MS) return cached.analysis;
+    const analysis = await this.research.research(tokenAddress);
+    this.researchCache.set(tokenAddress, { at: Date.now(), analysis });
+    return analysis;
+  }
+
+  private pruneResearchCache(): void {
+    const now = Date.now();
+    for (const [address, entry] of this.researchCache) {
+      if (now - entry.at >= RESEARCH_TTL_MS) this.researchCache.delete(address);
+    }
   }
 }

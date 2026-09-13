@@ -48,9 +48,9 @@ describe("scoreSmartMoneyDimension", () => {
     expect(scoreSmartMoneyDimension(analysis)).toBe(100);
   });
 
-  it("all null = 0", () => {
+  it("no smart money data returns NaN (unknown, distinct from zero wallets)", () => {
     const analysis = createEmptyTokenAnalysis("SoLaddr", "sol");
     // smartMoneyWalletCount, smartMoneyVolumeRatio, convergenceStrength all null
-    expect(scoreSmartMoneyDimension(analysis)).toBe(0);
+    expect(scoreSmartMoneyDimension(analysis)).toBeNaN();
   });
 });

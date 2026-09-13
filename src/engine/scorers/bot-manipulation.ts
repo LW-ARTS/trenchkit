@@ -1,6 +1,16 @@
 import type { TokenAnalysis } from "../../foundation/types.js";
 
 export function scoreBotManipulationDimension(analysis: TokenAnalysis): number {
+  const inputs = [
+    analysis.botDegenRate,
+    analysis.bundlerRate,
+    analysis.ratTraderRate,
+    analysis.sniperCount,
+    analysis.privateVaultHoldRate,
+  ];
+  // No bot data at all = unknown, not clean.
+  if (inputs.every((v) => v === null)) return Number.NaN;
+
   let base = 100;
 
   if (analysis.botDegenRate !== null) base -= analysis.botDegenRate * 80;

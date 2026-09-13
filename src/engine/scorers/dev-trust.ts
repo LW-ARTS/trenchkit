@@ -1,6 +1,11 @@
 import type { TokenAnalysis } from "../../foundation/types.js";
 
 export function scoreDevTrustDimension(analysis: TokenAnalysis): number {
+  // No dev data at all = unknown. A known empty history stays neutral below.
+  if (analysis.creatorOpenCount === null && analysis.creatorInnerCount === null) {
+    return Number.NaN;
+  }
+
   const openCount = analysis.creatorOpenCount ?? 0;
   const innerCount = analysis.creatorInnerCount ?? 0;
   const totalCreated = openCount + innerCount;

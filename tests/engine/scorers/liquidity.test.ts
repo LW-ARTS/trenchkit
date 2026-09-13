@@ -73,11 +73,11 @@ describe("scoreLiquidityDimension - DEX pool", () => {
     expect(scoreLiquidityDimension(analysis)).toBe(30);
   });
 
-  it("all null fields on DEX = 100 (no penalties applied)", () => {
+  it("no pool data on DEX returns NaN (unknown, not perfect)", () => {
     const analysis = createEmptyTokenAnalysis("addr", "sol");
     analysis.isOnCurve = false;
     // liquidity = null, liquidityStable = null
-    expect(scoreLiquidityDimension(analysis)).toBe(100);
+    expect(scoreLiquidityDimension(analysis)).toBeNaN();
   });
 });
 

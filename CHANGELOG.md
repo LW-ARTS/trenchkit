@@ -2,6 +2,13 @@
 
 All notable changes to trenchkit are documented here. Format loosely follows [Keep a Changelog](https://keepachangelog.com/); versions follow [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+- **Scoring treated missing data as safe.** Scorers returned perfect scores (security, holders, liquidity, bots 100; dev trust 50) when their inputs were blank, and the aggregator redistributed the weight of dimensions with no data. A scorer with no inputs now returns `NaN` and that dimension contributes 0 at full weight.
+- **Scan scored the thin trending snapshot.** `Pipeline.scan()` now researches the top 10 hard-filtered candidates (cached 5 min per token), re-applies hard filters on the full data, then scores.
+- **Honeypots passed hard filters.** Confirmed honeypots on EVM chains are now dropped.
+
 ## [0.1.0] 2026-04-20
 
 First public release, built for the GMGN Open-Source Case Collection Season 1.

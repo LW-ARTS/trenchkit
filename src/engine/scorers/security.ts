@@ -5,6 +5,19 @@ export function scoreSecurityDimension(analysis: TokenAnalysis): number {
   const config = getChainConfig(analysis.chain);
   const fields = config.applicableSecurityFields;
 
+  const inputs = [
+    analysis.isRenounced,
+    analysis.rugRatio,
+    analysis.burnRatio,
+    fields.honeypot ? analysis.isHoneypot : null,
+    fields.freezeAuthority ? analysis.isFreezeAuthorityRenounced : null,
+    fields.mintAuthority ? analysis.isMintAuthorityRenounced : null,
+    fields.buyTax ? analysis.buyTax : null,
+    fields.sellTax ? analysis.sellTax : null,
+  ];
+  // No security data at all = unknown, not safe.
+  if (inputs.every((v) => v === null)) return Number.NaN;
+
   // Honeypot = instant kill (EVM only)
   if (fields.honeypot && analysis.isHoneypot === true) return 0;
 

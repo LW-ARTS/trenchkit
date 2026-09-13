@@ -7,6 +7,9 @@ export function scoreLiquidityDimension(analysis: TokenAnalysis): number {
     return Math.max(0, Math.min(100, progress * 100));
   }
 
+  // No pool data at all = unknown, not perfect.
+  if (analysis.liquidity === null && analysis.liquidityStable === null) return Number.NaN;
+
   // DEX pool: standard liquidity metrics
   let base = 100;
 

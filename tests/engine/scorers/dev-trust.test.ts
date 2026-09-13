@@ -10,10 +10,10 @@ describe("scoreDevTrustDimension - no dev history", () => {
     expect(scoreDevTrustDimension(analysis)).toBe(50);
   });
 
-  it("null counts treated as 0 = 50 (neutral)", () => {
+  it("no dev data returns NaN (unknown, not neutral)", () => {
     const analysis = createEmptyTokenAnalysis("addr", "sol");
     // all creator fields remain null
-    expect(scoreDevTrustDimension(analysis)).toBe(50);
+    expect(scoreDevTrustDimension(analysis)).toBeNaN();
   });
 });
 

@@ -17,22 +17,22 @@ const DIMENSIONS: DimensionWeight[] = [
   { name: "botManipulation", weight: 0.1, scorer: scoreBotManipulationDimension },
 ];
 
+const TOTAL_WEIGHT = DIMENSIONS.reduce((sum, dim) => sum + dim.weight, 0);
+
 export function calculateConviction(analysis: TokenAnalysis): TokenAnalysis {
   const scores: Record<string, number> = {};
-  let totalWeight = 0;
   let weightedSum = 0;
 
   for (const dim of DIMENSIONS) {
     const score = dim.scorer(analysis);
-    // Check if score is valid (not NaN)
+    // NaN = no data for this dimension. It earns 0 but keeps its weight, so a
+    // token can't score well just because the risky dimensions went unchecked.
     if (Number.isNaN(score)) continue;
     scores[dim.name] = score;
-    totalWeight += dim.weight;
     weightedSum += score * dim.weight;
   }
 
-  // Normalize if some dimensions were skipped
-  const conviction = totalWeight > 0 ? weightedSum / totalWeight : 0;
+  const conviction = weightedSum / TOTAL_WEIGHT;
   const finalScore = Math.round(Math.max(0, Math.min(100, conviction)));
 
   // Cap at 80 if partial data

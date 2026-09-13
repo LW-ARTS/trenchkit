@@ -33,10 +33,10 @@ describe("scoreHolderQualityDimension", () => {
     expect(scoreHolderQualityDimension(analysis)).toBe(100); // 100 + 10 = 110, clamped to 100
   });
 
-  it("all null fields = score 100 (no penalties)", () => {
+  it("no holder data returns NaN (unknown, not perfect)", () => {
     const analysis = createEmptyTokenAnalysis("SoLaddr", "sol");
     // all holder fields are null from createEmptyTokenAnalysis
-    expect(scoreHolderQualityDimension(analysis)).toBe(100);
+    expect(scoreHolderQualityDimension(analysis)).toBeNaN();
   });
 
   it("score is always clamped to 0-100", () => {

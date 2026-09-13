@@ -1,6 +1,15 @@
 import type { TokenAnalysis } from "../../foundation/types.js";
 
 export function scoreSmartMoneyDimension(analysis: TokenAnalysis): number {
+  // No smart money data at all = unknown, distinct from a known zero.
+  if (
+    analysis.smartMoneyWalletCount === null &&
+    analysis.smartMoneyVolumeRatio === null &&
+    analysis.convergenceStrength === null
+  ) {
+    return Number.NaN;
+  }
+
   const smCount = analysis.smartMoneyWalletCount ?? 0;
   const smVolumeRatio = analysis.smartMoneyVolumeRatio ?? 0;
 

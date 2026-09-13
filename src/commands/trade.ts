@@ -86,7 +86,7 @@ export function registerTradeCommand(program: Command): void {
     .description("Buy a token with native currency")
     .argument("<token_address>", "token to buy")
     .requiredOption("--amount <amount>", "amount of native currency to spend")
-    .option("--slippage <decimal>", "slippage tolerance (e.g. 0.02)", "0.02")
+    .option("--slippage <decimal>", "slippage as a decimal: 0.02 = 2% (max 0.5)", "0.02")
     .option("--wallet <address>", "source wallet (falls back to config.walletAddress)")
     .option("--tp <pct>", "take-profit gain % (e.g. 150)")
     .option("--sl <pct>", "stop-loss drop % (e.g. 30)")
@@ -141,7 +141,7 @@ export function registerTradeCommand(program: Command): void {
     .description("Sell a token back to native currency")
     .argument("<token_address>", "token to sell")
     .requiredOption("--percent <pct>", "percent of holdings to sell (1-100)")
-    .option("--slippage <decimal>", "slippage tolerance (e.g. 0.02)", "0.02")
+    .option("--slippage <decimal>", "slippage as a decimal: 0.02 = 2% (max 0.5)", "0.02")
     .option("--wallet <address>", "source wallet (falls back to config.walletAddress)")
     .option("-y, --yes", "skip confirmation")
     .action(async (tokenAddress: string, opts: Record<string, string | boolean>) => {

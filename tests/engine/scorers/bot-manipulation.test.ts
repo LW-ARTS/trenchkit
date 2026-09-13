@@ -54,9 +54,9 @@ describe("scoreBotManipulationDimension", () => {
     expect(scoreBotManipulationDimension(analysis)).toBe(0);
   });
 
-  it("all null = 100 (no penalties)", () => {
+  it("no bot data returns NaN (unknown, not clean)", () => {
     const analysis = createEmptyTokenAnalysis("SoLaddr", "sol");
     // All bot fields remain null from createEmptyTokenAnalysis
-    expect(scoreBotManipulationDimension(analysis)).toBe(100);
+    expect(scoreBotManipulationDimension(analysis)).toBeNaN();
   });
 });

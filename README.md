@@ -25,14 +25,14 @@ trenchkit runs that workflow on rails. It pulls the same GMGN feed, drops the ru
 ```
   500 trending tokens
          │
-         ▼   hard filters (liquidity, honeypot, dev rug ratio, top-10 holder)
-  ~40 candidates
+         ▼   hard filters (liquidity, rug ratio, holder count, age)
+  top 10 candidates
          │
-         ▼   7-endpoint research burst (17 weight/token)
+         ▼   7-endpoint research burst (17 weight/token, cached 5 min)
   full TokenAnalysis
          │
-         ▼   6-dimension conviction score + smart-money cross-reference
-  3 to 5 tokens with conviction > 80
+         ▼   honeypot / bot / wash-trading filters + 6-dimension conviction score
+  scored shortlist (missing data scores 0, never "safe")
 ```
 
 Every token comes with a receipt: why it qualified, what dimensions scored, which Smart Money wallets bought. You can audit the signal or disagree with it. You can't do that on a trending page.
@@ -180,7 +180,7 @@ Subcommands: `buy`, `sell --percent`, `status <order_id>`, `orders`.
 | 40 to 59   | LOW        |
 | below 40   | AVOID      |
 
-Partial data (when some endpoints are unavailable, common on BSC and Base) caps the reported score at 80. A conviction of 81+ is only emitted when every dimension had real input.
+A dimension with no data at all scores 0 instead of being dropped from the average, so unchecked risk can never inflate a score. Partial data (when some endpoints are unavailable, common on BSC and Base) caps the reported score at 80. A conviction of 81+ is only emitted when every dimension had real input.
 
 ## FAQ
 

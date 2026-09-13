@@ -50,8 +50,8 @@ The scan-to-shortlist pipeline.
 
 - `filters.ts` applies hard filter predicates (liquidity floor, honeypot, dev rug ratio, top-10 holder concentration) and fails a candidate fast.
 - `scorers/` holds six independent dimension scorers: security, holder-quality, liquidity, dev-trust, smart-money, bot-manipulation.
-- `scorers/index.ts` is the aggregator. Runs the six scorers in parallel, combines weighted scores, caps at 80 when any scorer saw partial data.
-- `pipeline.ts` wires Scanner, filters, Research, scorers into a single flow. Read-only commands (wallet, trade) skip the engine and instantiate modules directly.
+- `scorers/index.ts` is the aggregator. Runs the six scorers, combines weighted scores, caps at 80 when research saw partial data. A scorer with no input data returns `NaN`; that dimension scores 0 but keeps its weight, so blanks never read as safe.
+- `pipeline.ts` wires Scanner, filters, Research, scorers into a single flow: hard-filter the trending snapshot, research the top 10 candidates sequentially (cached 5 min per token), re-filter on the full data, score. Read-only commands (wallet, trade) skip the engine and instantiate modules directly.
 
 ### Interface (`src/commands/`, `src/ui/`)
 

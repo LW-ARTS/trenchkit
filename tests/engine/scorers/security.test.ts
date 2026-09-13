@@ -9,8 +9,14 @@ describe("scoreSecurityDimension", () => {
     expect(scoreSecurityDimension(analysis)).toBe(0);
   });
 
+  it("no security data at all returns NaN (unknown, not safe)", () => {
+    const analysis = createEmptyTokenAnalysis("SoLaddr", "sol");
+    expect(scoreSecurityDimension(analysis)).toBeNaN();
+  });
+
   it("honeypot field ignored on SOL chain (not applicable)", () => {
     const analysis = createEmptyTokenAnalysis("SoLaddr", "sol");
+    analysis.isRenounced = true;
     analysis.isHoneypot = true;
     // SOL has honeypot: false in applicableSecurityFields, so no kill
     expect(scoreSecurityDimension(analysis)).toBe(100);

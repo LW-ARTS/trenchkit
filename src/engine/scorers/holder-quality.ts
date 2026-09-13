@@ -1,6 +1,16 @@
 import type { TokenAnalysis } from "../../foundation/types.js";
 
 export function scoreHolderQualityDimension(analysis: TokenAnalysis): number {
+  const inputs = [
+    analysis.top10HolderRate,
+    analysis.holderGrowthRate,
+    analysis.freshWalletRate,
+    analysis.insiderHoldRate,
+    analysis.bluechipOwnerPercentage,
+  ];
+  // No holder data at all = unknown, not perfect.
+  if (inputs.every((v) => v === null)) return Number.NaN;
+
   let score = 100;
 
   // Top 10 concentration penalty

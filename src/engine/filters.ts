@@ -1,6 +1,9 @@
+import { getChainConfig } from "../foundation/chain.js";
 import type { TokenAnalysis } from "../foundation/types.js";
 
 export function passesHardFilters(analysis: TokenAnalysis): boolean {
+  const fields = getChainConfig(analysis.chain).applicableSecurityFields;
+  if (fields.honeypot && analysis.isHoneypot === true) return false;
   if (analysis.rugRatio !== null && analysis.rugRatio > 0.5) return false;
   if (analysis.botDegenRate !== null && analysis.botDegenRate > 0.45) return false;
   if (analysis.isWashTrading === true) return false;

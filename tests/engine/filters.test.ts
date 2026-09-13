@@ -64,6 +64,14 @@ describe("passesHardFilters", () => {
     expect(passesHardFilters(analysis)).toBe(true);
   });
 
+  it("is_honeypot true fails", () => {
+    const analysis = createEmptyTokenAnalysis("0xabc", "bsc");
+    analysis.holderCount = 500;
+    analysis.age = 1800;
+    analysis.isHoneypot = true;
+    expect(passesHardFilters(analysis)).toBe(false);
+  });
+
   it("holder_count < 100 fails", () => {
     const analysis = createEmptyTokenAnalysis("SoLaddr", "sol");
     analysis.holderCount = 99;

@@ -98,16 +98,15 @@ describe("calculateConviction", () => {
     expect(result.convictionScore).toBe(60);
   });
 
-  it("NaN dimension is skipped and weight redistributed", () => {
-    // security returns NaN -> weight 0.20 is excluded
-    // remaining weights: 0.25 + 0.15 + 0.15 + 0.15 + 0.10 = 0.80
-    // all remaining return 80
-    // weighted sum = 80 * 0.80 / 0.80 = 80
+  it("missing (NaN) dimension earns 0 instead of having its weight redistributed", () => {
+    // security returns NaN -> unverified, contributes 0 but keeps its 0.20 weight
+    // remaining weights: 0.25 + 0.15 + 0.15 + 0.15 + 0.10 = 0.80, all return 80
+    // weighted sum = 80 * 0.80 = 64
     vi.mocked(scoreSecurityDimension).mockReturnValue(Number.NaN);
 
     const analysis = createEmptyTokenAnalysis("SoLaddr", "sol");
     const result = calculateConviction(analysis);
-    expect(result.convictionScore).toBe(80);
+    expect(result.convictionScore).toBe(64);
     // security dimension should be absent from dimensionScores
     expect(result.dimensionScores).toBeDefined();
     expect(result.dimensionScores).not.toHaveProperty("security");
